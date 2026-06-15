@@ -1,3 +1,94 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## 构建与运行
+
+```bash
+# 编译全部模块
+mvn compile -q
+
+# 编译单个模块（跳过测试）
+mvn compile -pl user-service -am -q
+
+# 运行单个服务（spring-boot-maven-plugin）
+mvn spring-boot:run -pl gateway-service
+
+# 打包全部模块
+mvn package -DskipTests -q
+```
+
+项目需要 Java 17+、MySQL 8.0、Redis、RabbitMQ 3.x。每个服务有独立的 `application.yml`，数据库/中间件连接通过环境变量注入（有默认 localhost 值）。
+
+## 项目架构
+
+Spring Boot 3.2 + Spring Cloud 2023.0.2（Gateway + OpenFeign）+ Spring Cloud Alibaba + MyBatis Plus 微服务项目。
+
+```
+gateway (8080) ──→ user-service      (8081, learning_user)
+                → course-service    (8082, learning_course)
+                → cart-service      (8083, learning_cart)
+                → order-service     (8084, learning_order)
+                → payment-service   (8085, learning_payment)
+                → learning-service  (8086, learning_learning)
+                → admin-service     (8087, 无数据库，纯代理)
+```
+
+**模块依赖链**: `common-core` → `common-security` → `common-web`。业务服务全部依赖这三个 common 模块。`common-cache`（Redis+Caffeine）和 `common-mq`（RabbitMQ）按需引入。`gateway-service` 只依赖 `common-security`（JWT 解析）。
+
+## 认证流程
+
+三层链路，不可绕过：
+
+1. **Gateway `AuthGlobalFilter`**（order=-100）— 校验 JWT → 解析 userId/role → 写入 `X-User-Id`/`X-User-Role` header 转发给下游
+2. **`UserInfoInterceptor`**（common-web）— 读取 header → `request.setAttribute("userId", ...)`
+3. **Controller** — `@RequestAttribute("userId")` / `@RequestAttribute("role")` 获取用户上下文
+
+公开路径（跳过认证）：`/api/user/register`、`/api/user/login`、`/api/course/list`、`/api/course/detail`、`/api/course/category/tree`、`/api/course/hot`、`/api/learning/course`（startsWith 匹配）。
+
+管理员接口通过 `AdminAuthService.checkAdmin(role)` 校验 role==1。
+
+## 关键约定
+
+- **统一响应**: `R<T>`（code/message/data/timestamp），静态工厂 `R.ok()` / `R.fail(code, msg)`
+- **错误码**: `ResultCode` 枚举，4xx 业务错误（40001-40015），5xx 系统错误（50001-50005）
+- **业务异常**: `throw new BizException(ResultCode.XXX)`，由 `GlobalExceptionHandler` 统一处理
+- **分页**: 请求继承 `PageReq`（pageNum/pageSize/sort），响应用 `PageResp<T>`
+- **实体基类**: 各服务自己定义 entity，无公共基类；ID 使用 `@TableId(type = IdType.AUTO)` 自增
+- **DTO 分层**: `dto.req` 放请求体，`dto.resp` 放响应 VO，`dto.req` 中的 DTO 加 `@Valid` 注解
+- **Feign 接口**: 放在调用方服务中（如 payment-service 中的 `OrderClient`），不在 common 中共享
+- **服务发现**: Nacos 已配置但 `enabled: false`，开发阶段走 localhost 直连
+
+## 消息队列拓扑
+
+```
+order.topic (TopicExchange)
+├── order.created → order.created.course / order.created.notify / order.payment.delay
+└── order.paid   → order.paid.enrollment
+
+order.dlx (Dead Letter Exchange)
+└── order.timeout → order.timeout.cancel (30min TTL 延迟取消)
+```
+
+关键可靠性机制：Publisher Confirm + Return Callback（common-mq `RabbitCommonConfig`）| 消费者手动 ACK | 幂等消费 Redis SETNX | 分布式事务：`TransactionSynchronization.afterCommit()` 后发 MQ
+
+## 缓存策略（course-service 两级缓存）
+
+```
+请求 → Caffeine(L1, 10min) → Redis(L2, 30min+随机偏移) → 分布式锁(SETNX) → MySQL
+                             ↑ 空值缓存(2min) 防止穿透
+```
+
+热点课程用 Redis ZSet `course:hot:top10`；分类树 Redis 缓存 1h。admin-service 修改课程后发 `course.updated` MQ 通知清缓存（consumer 待实现）。
+
+## 已知局限
+
+- **零测试** — 所有模块均无 `src/test` 目录
+- admin-service 多数操作仅打日志，Feign 调用占位未实现
+- `@CurrentUser` 注解已定义但无参数解析器，全部用 `@RequestAttribute` 直取
+- `OrderPaidMessage` 在 3 个服务中各自复制定义，未抽取到 common-mq
+- `course.updated` MQ 消息已发送但 consumer 未实现（缓存刷新待完成）
+
 <!-- superpowers-zh:begin (do not edit between these markers) -->
 # Superpowers-ZH 中文增强版
 
