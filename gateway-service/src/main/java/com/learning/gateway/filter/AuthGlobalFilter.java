@@ -1,4 +1,4 @@
-package com.learning.common.security.filter;
+package com.learning.gateway.filter;
 
 import com.learning.common.security.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             "/api/course/detail",
             "/api/course/category/tree",
             "/api/course/hot",
-            "/api/learning/course"  // 课程评价列表公开
+            "/api/learning/course"
     );
 
     public AuthGlobalFilter(JwtUtil jwtUtil) {
