@@ -129,6 +129,20 @@ public class OrderServiceImpl implements OrderService {
         return "ORD" + datePart + randomPart;
     }
 
+    @Override
+    public void updateStatus(Long id, Integer status) {
+        Order order = orderMapper.selectById(id);
+        if (order == null) {
+            throw new BizException(ResultCode.ORDER_NOT_FOUND);
+        }
+        order.setStatus(status);
+        if (status.equals(OrderStatusEnum.PAID.getCode())) {
+            order.setPaidAt(LocalDateTime.now());
+        }
+        orderMapper.updateById(order);
+        log.info("订单状态更新: orderId={}, status={}", id, status);
+    }
+
     private String getStatusDesc(Integer status) {
         for (OrderStatusEnum e : OrderStatusEnum.values()) {
             if (e.getCode().equals(status)) {

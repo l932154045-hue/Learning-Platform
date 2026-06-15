@@ -38,4 +38,11 @@ public class OrderController {
         orderService.cancel(id);
         return R.ok();
     }
+
+    @PutMapping("/internal/updateStatus/{id}")
+    public R<Void> updateStatus(@PathVariable Long id,
+                                 @RequestParam("status") Integer status) {
+        orderService.updateStatus(id, status);
+        return R.ok();
+    }
 }
