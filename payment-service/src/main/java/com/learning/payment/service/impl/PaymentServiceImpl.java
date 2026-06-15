@@ -2,6 +2,7 @@ package com.learning.payment.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.learning.common.core.exception.BizException;
+import com.learning.common.core.result.R;
 import com.learning.common.core.result.ResultCode;
 import com.learning.payment.client.OrderClient;
 import com.learning.payment.dto.resp.PayResultVO;
@@ -40,7 +41,14 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PayResultVO pay(Long userId, Long orderId) {
-        // 1. Idempotent check: check if already paid
+        // 1. Verify order ownership
+        R<Long> ownerResult = orderClient.getOwnerUserId(orderId);
+        if (ownerResult == null || ownerResult.getData() == null
+                || !ownerResult.getData().equals(userId)) {
+            throw new BizException(ResultCode.FORBIDDEN);
+        }
+
+        // 2. Idempotent check: check if already paid
         PaymentRecord existRecord = paymentRecordMapper.selectOne(
                 new LambdaQueryWrapper<PaymentRecord>()
                         .eq(PaymentRecord::getOrderId, orderId)
@@ -50,7 +58,7 @@ public class PaymentServiceImpl implements PaymentService {
             return buildPayResultVO(existRecord);
         }
 
-        // 2. Redis distributed lock to prevent concurrent payment
+        // 3. Redis distributed lock to prevent concurrent payment
         String lockKey = PAY_LOCK_KEY + orderId;
         Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "1", PAY_LOCK_TTL,
                 TimeUnit.SECONDS);
@@ -59,7 +67,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         try {
-            // 3. Insert payment record with PENDING status
+            // 4. Insert payment record with PENDING status
             String paymentNo = generatePaymentNo();
             PaymentRecord record = new PaymentRecord();
             record.setPaymentNo(paymentNo);
@@ -71,14 +79,14 @@ public class PaymentServiceImpl implements PaymentService {
             record.setStatus(PayStatusEnum.PENDING.getCode());
             paymentRecordMapper.insert(record);
 
-            // 4. Simulate payment success
+            // 5. Simulate payment success
             record.setStatus(PayStatusEnum.SUCCESS.getCode());
             record.setPaidAt(LocalDateTime.now());
             paymentRecordMapper.updateById(record);
 
             log.info("模拟支付成功: paymentNo={}, orderId={}", paymentNo, orderId);
 
-            // 5. Feign call order-service to update order status
+            // 6. Feign call order-service to update order status
             try {
                 orderClient.updateStatus(orderId, 1);
                 log.info("订单状态更新成功: orderId={}", orderId);
@@ -87,7 +95,7 @@ public class PaymentServiceImpl implements PaymentService {
                 throw new BizException(ResultCode.REMOTE_CALL_ERROR);
             }
 
-            // 6. Send OrderPaidMessage to MQ
+            // 7. Send OrderPaidMessage to MQ
             OrderPaidMessage message = new OrderPaidMessage();
             message.setOrderId(orderId);
             message.setOrderNo(record.getOrderNo());

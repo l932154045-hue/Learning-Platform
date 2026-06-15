@@ -11,4 +11,5 @@ public interface OrderService {
     List<OrderDetailVO> list(Long userId);
     void cancel(Long id, Long userId);
     void updateStatus(Long id, Integer status);
+    Long getOwnerUserId(Long id);
 }

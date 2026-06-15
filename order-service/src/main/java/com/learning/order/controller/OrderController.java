@@ -43,6 +43,16 @@ public class OrderController {
         return R.ok();
     }
 
+    @GetMapping("/internal/owner/{id}")
+    public R<Long> getOwner(@PathVariable Long id,
+                             @RequestAttribute(value = "role", required = false) Integer role) {
+        // 通过网关访问时校验管理员角色, 内部 Feign 调用时 role 为 null 放行
+        if (role != null && role != 1) {
+            throw new BizException(ResultCode.FORBIDDEN);
+        }
+        return R.ok(orderService.getOwnerUserId(id));
+    }
+
     @PutMapping("/internal/updateStatus/{id}")
     public R<Void> updateStatus(@PathVariable Long id,
                                  @RequestParam("status") Integer status,

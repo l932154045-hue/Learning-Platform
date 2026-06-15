@@ -84,7 +84,7 @@ public class OrderServiceImpl implements OrderService {
         if (order == null) {
             throw new BizException(ResultCode.ORDER_NOT_FOUND);
         }
-        if (!order.getUserId().equals(userId)) {
+        if (!userId.equals(order.getUserId())) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         OrderDetailVO vo = new OrderDetailVO();
@@ -119,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
         if (order == null) {
             throw new BizException(ResultCode.ORDER_NOT_FOUND);
         }
-        if (!order.getUserId().equals(userId)) {
+        if (!userId.equals(order.getUserId())) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         if (!order.getStatus().equals(OrderStatusEnum.PENDING.getCode())) {
@@ -127,6 +127,15 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setStatus(OrderStatusEnum.CANCELLED.getCode());
         orderMapper.updateById(order);
+    }
+
+    @Override
+    public Long getOwnerUserId(Long id) {
+        Order order = orderMapper.selectById(id);
+        if (order == null) {
+            throw new BizException(ResultCode.ORDER_NOT_FOUND);
+        }
+        return order.getUserId();
     }
 
     private String generateOrderNo() {
