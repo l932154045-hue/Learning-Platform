@@ -1,0 +1,39 @@
+package com.learning.admin.controller;
+
+import com.learning.admin.service.CategoryAdminService;
+import com.learning.common.core.result.R;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/admin/category")
+@RequiredArgsConstructor
+public class CategoryAdminController {
+
+    private final CategoryAdminService categoryAdminService;
+
+    @PostMapping
+    public R<Void> create(@RequestParam String name,
+                           @RequestParam(defaultValue = "0") Long parentId,
+                           @RequestParam(defaultValue = "0") Integer sortOrder,
+                           @RequestAttribute("role") Integer role) {
+        categoryAdminService.createCategory(name, parentId, sortOrder, role);
+        return R.ok();
+    }
+
+    @PutMapping("/{id}")
+    public R<Void> update(@PathVariable Long id,
+                           @RequestParam String name,
+                           @RequestParam Integer sortOrder,
+                           @RequestAttribute("role") Integer role) {
+        categoryAdminService.updateCategory(id, name, sortOrder, role);
+        return R.ok();
+    }
+
+    @DeleteMapping("/{id}")
+    public R<Void> delete(@PathVariable Long id,
+                           @RequestAttribute("role") Integer role) {
+        categoryAdminService.deleteCategory(id, role);
+        return R.ok();
+    }
+}

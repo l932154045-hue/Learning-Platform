@@ -1,0 +1,26 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: admin-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PWD:guest}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+        server-addr: ${NACOS_SERVER:localhost:8848}
+
+jwt:
+  secret: LearningPlatformJwtSecretKey2026!@#
+  ttl: 604800000
+
+logging:
+  level:
+    com.learning: debug

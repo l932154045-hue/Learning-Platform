@@ -13,7 +13,8 @@
       "Bash(git show *)",
       "Bash(cat pom.xml)",
       "PowerShell(git *)",
-      "Bash(mvn package *)"
+      "Bash(mvn package *)",
+      "Bash(mvn clean *)"
     ]
   }
 }
