@@ -21,6 +21,7 @@ public enum ResultCode {
     ORDER_PAID(40011, "订单已支付"),
     DUPLICATE_PAY(40012, "重复支付"),
     REVIEW_EXISTS(40013, "评价已存在"),
+    CART_DUPLICATE(40014, "课程已在购物车中"),
 
     // 5xx
     SYSTEM_ERROR(50001, "系统内部错误"),
