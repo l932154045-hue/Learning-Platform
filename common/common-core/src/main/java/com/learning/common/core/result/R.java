@@ -16,15 +16,15 @@ public class R<T> {
     private Long timestamp;
 
     public static <T> R<T> ok() {
-        return new R<>(200, "success", null, System.currentTimeMillis());
+        return new R<>(ResultCode.SUCCESS.getCode(), "success", null, System.currentTimeMillis());
     }
 
     public static <T> R<T> ok(T data) {
-        return new R<>(200, "success", data, System.currentTimeMillis());
+        return new R<>(ResultCode.SUCCESS.getCode(), "success", data, System.currentTimeMillis());
     }
 
     public static <T> R<T> ok(String message, T data) {
-        return new R<>(200, message, data, System.currentTimeMillis());
+        return new R<>(ResultCode.SUCCESS.getCode(), message, data, System.currentTimeMillis());
     }
 
     public static <T> R<T> fail(Integer code, String message) {

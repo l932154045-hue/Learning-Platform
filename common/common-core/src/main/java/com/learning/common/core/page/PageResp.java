@@ -17,6 +17,9 @@ public class PageResp<T> {
     private Integer totalPages;
 
     public static <T> PageResp<T> of(List<T> records, Long total, Integer pageNum, Integer pageSize) {
+        if (pageSize == null || pageSize <= 0) {
+            throw new IllegalArgumentException("pageSize must be positive");
+        }
         int totalPages = (int) Math.ceil((double) total / pageSize);
         return new PageResp<>(records, total, pageNum, pageSize, totalPages);
     }
