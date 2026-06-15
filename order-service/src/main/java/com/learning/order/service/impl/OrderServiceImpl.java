@@ -79,10 +79,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDetailVO getDetail(Long id) {
+    public OrderDetailVO getDetail(Long id, Long userId) {
         Order order = orderMapper.selectById(id);
         if (order == null) {
             throw new BizException(ResultCode.ORDER_NOT_FOUND);
+        }
+        if (!order.getUserId().equals(userId)) {
+            throw new BizException(ResultCode.FORBIDDEN);
         }
         OrderDetailVO vo = new OrderDetailVO();
         BeanUtils.copyProperties(order, vo);
@@ -111,10 +114,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void cancel(Long id) {
+    public void cancel(Long id, Long userId) {
         Order order = orderMapper.selectById(id);
         if (order == null) {
             throw new BizException(ResultCode.ORDER_NOT_FOUND);
+        }
+        if (!order.getUserId().equals(userId)) {
+            throw new BizException(ResultCode.FORBIDDEN);
         }
         if (!order.getStatus().equals(OrderStatusEnum.PENDING.getCode())) {
             throw new BizException(ResultCode.ORDER_PAID);

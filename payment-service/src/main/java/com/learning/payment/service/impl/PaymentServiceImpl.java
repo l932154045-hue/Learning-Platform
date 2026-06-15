@@ -104,7 +104,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PayResultVO queryResult(Long orderId) {
+    public PayResultVO queryResult(Long orderId, Long userId) {
         PaymentRecord record = paymentRecordMapper.selectOne(
                 new LambdaQueryWrapper<PaymentRecord>()
                         .eq(PaymentRecord::getOrderId, orderId)
@@ -112,6 +112,9 @@ public class PaymentServiceImpl implements PaymentService {
                         .last("LIMIT 1"));
         if (record == null) {
             throw new BizException(ResultCode.ORDER_NOT_FOUND);
+        }
+        if (!record.getUserId().equals(userId)) {
+            throw new BizException(ResultCode.FORBIDDEN);
         }
         return buildPayResultVO(record);
     }

@@ -1,6 +1,8 @@
 package com.learning.order.controller;
 
+import com.learning.common.core.exception.BizException;
 import com.learning.common.core.result.R;
+import com.learning.common.core.result.ResultCode;
 import com.learning.order.dto.req.CreateOrderReq;
 import com.learning.order.dto.resp.OrderDetailVO;
 import com.learning.order.service.OrderService;
@@ -24,8 +26,9 @@ public class OrderController {
     }
 
     @GetMapping("/detail/{id}")
-    public R<OrderDetailVO> detail(@PathVariable Long id) {
-        return R.ok(orderService.getDetail(id));
+    public R<OrderDetailVO> detail(@PathVariable Long id,
+                                    @RequestAttribute("userId") Long userId) {
+        return R.ok(orderService.getDetail(id, userId));
     }
 
     @GetMapping("/list")
@@ -34,14 +37,20 @@ public class OrderController {
     }
 
     @PutMapping("/cancel/{id}")
-    public R<Void> cancel(@PathVariable Long id) {
-        orderService.cancel(id);
+    public R<Void> cancel(@PathVariable Long id,
+                           @RequestAttribute("userId") Long userId) {
+        orderService.cancel(id, userId);
         return R.ok();
     }
 
     @PutMapping("/internal/updateStatus/{id}")
     public R<Void> updateStatus(@PathVariable Long id,
-                                 @RequestParam("status") Integer status) {
+                                 @RequestParam("status") Integer status,
+                                 @RequestAttribute(value = "role", required = false) Integer role) {
+        // 通过网关访问时校验管理员角色, 内部 Feign 调用时 role 为 null 放行
+        if (role != null && role != 1) {
+            throw new BizException(ResultCode.FORBIDDEN);
+        }
         orderService.updateStatus(id, status);
         return R.ok();
     }

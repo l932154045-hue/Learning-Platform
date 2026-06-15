@@ -22,6 +22,7 @@ public enum ResultCode {
     DUPLICATE_PAY(40012, "重复支付"),
     REVIEW_EXISTS(40013, "评价已存在"),
     CART_DUPLICATE(40014, "课程已在购物车中"),
+    FORBIDDEN(40015, "无权访问"),
 
     // 5xx
     SYSTEM_ERROR(50001, "系统内部错误"),

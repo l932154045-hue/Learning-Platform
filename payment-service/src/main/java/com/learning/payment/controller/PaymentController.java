@@ -20,7 +20,8 @@ public class PaymentController {
     }
 
     @GetMapping("/result/{orderId}")
-    public R<PayResultVO> result(@PathVariable Long orderId) {
-        return R.ok(paymentService.queryResult(orderId));
+    public R<PayResultVO> result(@PathVariable Long orderId,
+                                  @RequestAttribute("userId") Long userId) {
+        return R.ok(paymentService.queryResult(orderId, userId));
     }
 }
