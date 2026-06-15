@@ -11,7 +11,8 @@
       "Bash(mvn -f common/common-core/pom.xml install -DskipTests)",
       "Bash(mvn compile *)",
       "Bash(git show *)",
-      "Bash(cat pom.xml)"
+      "Bash(cat pom.xml)",
+      "PowerShell(git *)"
     ]
   }
 }
