@@ -148,9 +148,27 @@ public class CourseServiceImpl implements CourseService {
         // ZREVRANGE course:hot:top10 0 9
         Set<Object> hotSet = redisTemplate.opsForZSet().reverseRange(HOT_TOP10_KEY, 0, 9);
         if (hotSet == null || hotSet.isEmpty()) {
-            return Collections.emptyList();
+            // Fallback: query top 10 by sale_count from MySQL and populate Redis
+            List<Course> topCourses = courseMapper.selectList(
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Course>()
+                            .eq(Course::getStatus, 1)
+                            .orderByDesc(Course::getSaleCount)
+                            .last("LIMIT 10"));
+            if (topCourses.isEmpty()) {
+                return Collections.emptyList();
+            }
+            for (Course course : topCourses) {
+                CourseListItemVO vo = new CourseListItemVO();
+                BeanUtils.copyProperties(course, vo);
+                redisTemplate.opsForZSet().add(HOT_TOP10_KEY, vo, course.getSaleCount());
+            }
+            // Re-fetch from Redis for consistent output
+            hotSet = redisTemplate.opsForZSet().reverseRange(HOT_TOP10_KEY, 0, 9);
         }
 
+        if (hotSet == null || hotSet.isEmpty()) {
+            return Collections.emptyList();
+        }
         List<CourseListItemVO> result = new ArrayList<>();
         for (Object obj : hotSet) {
             if (obj instanceof CourseListItemVO) {
