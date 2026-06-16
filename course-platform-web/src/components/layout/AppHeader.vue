@@ -11,6 +11,7 @@ const authStore = useAuthStore()
 const cartStore = useCartStore()
 
 const isLoggedIn = computed(() => authStore.isLoggedIn)
+const isAdmin = computed(() => authStore.isAdmin)
 const cartCount = computed(() => cartStore.totalCount)
 const userNickname = computed(() => authStore.user?.nickname ?? '')
 
@@ -75,6 +76,7 @@ if (isLoggedIn.value) {
               <el-dropdown-menu>
                 <el-dropdown-item @click="goTo('/profile')">个人中心</el-dropdown-item>
                 <el-dropdown-item @click="goTo('/orders')">我的订单</el-dropdown-item>
+                <el-dropdown-item v-if="isAdmin" @click="goTo('/admin')">管理后台</el-dropdown-item>
                 <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>

@@ -25,6 +25,10 @@ router.beforeEach(async (to, _from, next) => {
     return next({ name: 'Login', query: { redirect: to.fullPath } })
   }
 
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    return next({ name: 'Home' })
+  }
+
   next()
 })
 

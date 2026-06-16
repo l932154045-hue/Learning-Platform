@@ -79,6 +79,20 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/views/user/UserProfilePage.vue'),
     meta: { requiresAuth: true },
   },
+  // ===== 管理后台 =====
+  {
+    path: '/admin',
+    component: () => import('@/components/layout/AdminLayout.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      { path: '', name: 'Dashboard', component: () => import('@/views/admin/DashboardPage.vue') },
+      { path: 'courses', name: 'CourseManage', component: () => import('@/views/admin/CourseManagePage.vue') },
+      { path: 'course/:id/videos', name: 'ChapterVideo', component: () => import('@/views/admin/ChapterVideoPage.vue') },
+      { path: 'categories', name: 'CategoryManage', component: () => import('@/views/admin/CategoryManagePage.vue') },
+      { path: 'orders', name: 'OrderManage', component: () => import('@/views/admin/OrderManagePage.vue') },
+      { path: 'users', name: 'UserManage', component: () => import('@/views/admin/UserManagePage.vue') },
+    ],
+  },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
