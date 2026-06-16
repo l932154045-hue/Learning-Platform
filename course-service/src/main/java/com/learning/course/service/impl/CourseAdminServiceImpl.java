@@ -87,8 +87,10 @@ public class CourseAdminServiceImpl implements CourseAdminService {
         if (course == null) {
             throw new BizException(ResultCode.COURSE_NOT_FOUND);
         }
-        course.setStatus(-1); // Soft delete
-        courseMapper.updateById(course);
+        // Delete associated videos first
+        chapterVideoMapper.deleteByCourseId(id);
+        // Hard delete the course
+        courseMapper.deleteById(id);
         courseCacheService.evict(id);
         log.info("管理员删除课程成功: id={}", id);
     }

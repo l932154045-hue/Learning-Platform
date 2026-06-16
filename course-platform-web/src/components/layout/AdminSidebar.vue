@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
+import { ElMessageBox } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
@@ -20,7 +21,13 @@ function isActive(path: string) {
 }
 
 function goTo(path: string) { router.push(path) }
-function handleLogout() { auth.logout(); router.push('/') }
+async function handleLogout() {
+  try {
+    await ElMessageBox.confirm('确定要退出登录吗？', '退出确认', { type: 'warning' })
+    auth.logout()
+    router.push('/')
+  } catch { /* cancelled */ }
+}
 </script>
 
 <template>

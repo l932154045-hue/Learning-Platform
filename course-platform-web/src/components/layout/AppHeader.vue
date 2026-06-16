@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
@@ -24,10 +24,13 @@ function goTo(path: string) {
   router.push(path)
 }
 
-function handleLogout() {
-  authStore.logout()
-  ElMessage.success('已退出登录')
-  router.push('/')
+async function handleLogout() {
+  try {
+    await ElMessageBox.confirm('确定要退出登录吗？', '退出确认', { type: 'warning' })
+    authStore.logout()
+    ElMessage.success('已退出登录')
+    router.push('/')
+  } catch { /* cancelled */ }
 }
 
 if (isLoggedIn.value) {
