@@ -112,6 +112,14 @@ public class CourseInternalController {
 
     // ===== Stats =====
 
+    @GetMapping("/list-all")
+    public R<com.learning.common.core.page.PageResp<com.learning.course.dto.resp.CourseListItemVO>> listAll(
+            com.learning.common.core.page.PageReq req,
+            @RequestAttribute(value = "role", required = false) Integer role) {
+        checkAdmin(role);
+        return R.ok(courseAdminService.listAllCourses(req));
+    }
+
     @GetMapping("/count")
     public R<Long> getCourseCount(@RequestAttribute(value = "role", required = false) Integer role) {
         checkAdmin(role);

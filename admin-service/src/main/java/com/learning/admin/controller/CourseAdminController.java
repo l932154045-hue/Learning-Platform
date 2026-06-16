@@ -3,10 +3,14 @@ package com.learning.admin.controller;
 import com.learning.admin.dto.req.CourseSaveReq;
 import com.learning.admin.dto.req.VideoSaveReq;
 import com.learning.admin.service.CourseAdminService;
+import com.learning.common.core.page.PageReq;
+import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/course")
@@ -14,6 +18,12 @@ import org.springframework.web.bind.annotation.*;
 public class CourseAdminController {
 
     private final CourseAdminService courseAdminService;
+
+    @GetMapping("/list")
+    public R<PageResp<Map<String, Object>>> list(PageReq req,
+                                                  @RequestAttribute("role") Integer role) {
+        return R.ok(courseAdminService.listCourses(req, role));
+    }
 
     @PostMapping
     public R<Void> create(@Valid @RequestBody CourseSaveReq req,

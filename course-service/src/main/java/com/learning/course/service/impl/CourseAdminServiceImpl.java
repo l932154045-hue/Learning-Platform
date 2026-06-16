@@ -1,10 +1,15 @@
 package com.learning.course.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.learning.common.core.exception.BizException;
+import com.learning.common.core.page.PageReq;
+import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.ResultCode;
 import com.learning.course.cache.CourseCacheService;
 import com.learning.course.dto.req.CourseSaveReq;
 import com.learning.course.dto.req.VideoSaveReq;
+import com.learning.course.dto.resp.CourseListItemVO;
 import com.learning.course.entity.ChapterVideo;
 import com.learning.course.entity.Course;
 import com.learning.course.entity.CourseCategory;
@@ -18,6 +23,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,6 +35,22 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     private final CourseCategoryMapper categoryMapper;
     private final ChapterVideoMapper chapterVideoMapper;
     private final CourseCacheService courseCacheService;
+
+    @Override
+    public PageResp<CourseListItemVO> listAllCourses(PageReq req) {
+        Page<Course> page = new Page<>(req.getPageNum(), req.getPageSize());
+        IPage<Course> iPage = courseMapper.searchAllCourses(page, null, null);
+
+        List<CourseListItemVO> list = iPage.getRecords().stream().map(course -> {
+            CourseListItemVO vo = new CourseListItemVO();
+            BeanUtils.copyProperties(course, vo);
+            CourseCategory cat = categoryMapper.selectById(course.getCategoryId());
+            if (cat != null) vo.setCategoryName(cat.getName());
+            return vo;
+        }).collect(Collectors.toList());
+
+        return PageResp.of(list, iPage.getTotal(), req.getPageNum(), req.getPageSize());
+    }
 
     @Override
     @Transactional

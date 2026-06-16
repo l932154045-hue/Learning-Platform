@@ -1,9 +1,13 @@
 package com.learning.course.service;
 
+import com.learning.common.core.page.PageReq;
+import com.learning.common.core.page.PageResp;
 import com.learning.course.dto.req.CourseSaveReq;
 import com.learning.course.dto.req.VideoSaveReq;
+import com.learning.course.dto.resp.CourseListItemVO;
 
 public interface CourseAdminService {
+    PageResp<CourseListItemVO> listAllCourses(PageReq req);
     Long createCourse(CourseSaveReq req);
     void updateCourse(Long id, CourseSaveReq req);
     void deleteCourse(Long id);

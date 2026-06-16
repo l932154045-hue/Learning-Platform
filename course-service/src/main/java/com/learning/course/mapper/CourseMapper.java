@@ -30,4 +30,15 @@ public interface CourseMapper extends BaseMapper<Course> {
     IPage<Course> searchCourses(Page<Course> page, @Param("keyword") String keyword,
             @Param("categoryIds") List<Long> categoryIds, @Param("priceMin") BigDecimal priceMin,
             @Param("priceMax") BigDecimal priceMax, @Param("sort") String sort);
+
+    @Select("<script>SELECT * FROM course WHERE 1=1 " +
+            "<if test='keyword != null and keyword != \"\"'>" +
+            "AND (title LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%')) " +
+            "</if>" +
+            "<if test='categoryIds != null and categoryIds.size() > 0'>" +
+            "AND category_id IN <foreach collection='categoryIds' item='cid' open='(' separator=',' close=')'>#{cid}</foreach>" +
+            "</if> " +
+            "ORDER BY created_at DESC</script>")
+    IPage<Course> searchAllCourses(Page<Course> page, @Param("keyword") String keyword,
+            @Param("categoryIds") List<Long> categoryIds);
 }

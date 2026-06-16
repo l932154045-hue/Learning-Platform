@@ -8,11 +8,15 @@ import com.learning.admin.mq.producer.AdminEventProducer;
 import com.learning.admin.service.AdminAuthService;
 import com.learning.admin.service.CourseAdminService;
 import com.learning.common.core.exception.BizException;
+import com.learning.common.core.page.PageReq;
+import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
 import com.learning.common.core.result.ResultCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -89,6 +93,16 @@ public class CourseAdminServiceImpl implements CourseAdminService {
         R<Void> result = courseServiceClient.deleteVideo(id);
         checkFeignResult(result);
         log.info("管理员删除视频: id={}", id);
+    }
+
+    @Override
+    public PageResp<Map<String, Object>> listCourses(PageReq req, Integer role) {
+        authService.checkAdmin(role);
+        R<PageResp<Map<String, Object>>> result = courseServiceClient.listAllCourses(req);
+        if (result == null || result.getCode() != 200) {
+            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
+        }
+        return result.getData();
     }
 
     private void checkFeignResult(R<?> result) {

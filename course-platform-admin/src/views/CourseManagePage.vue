@@ -88,8 +88,11 @@ async function handleDelete(id: number) {
 
 async function handleToggleStatus(row: CourseListItemVO) {
   const newStatus = row.status === 1 ? 0 : 1
-  await adminCourseApi.updateStatus(row.id, newStatus)
-  ElMessage.success(newStatus === 1 ? '已上架' : '已下架')
+  try {
+    await adminCourseApi.updateStatus(row.id, newStatus)
+    row.status = newStatus
+    ElMessage.success(newStatus === 1 ? '已上架' : '已下架')
+  } catch { /* handled */ }
 }
 
 function goVideos(id: number) { router.push(`/course/${id}/videos`) }
@@ -121,10 +124,19 @@ async function handleRefreshCache() {
         <template #default="{ row }">&yen;{{ row.price }}</template>
       </el-table-column>
       <el-table-column prop="saleCount" label="销量" width="80" />
+      <el-table-column label="状态" width="80">
+        <template #default="{ row }">
+          <el-tag :type="row.status === 1 ? 'success' : 'warning'" size="small">
+            {{ row.status === 1 ? '已上架' : (row.status === 0 ? '草稿' : '已删除') }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="260" fixed="right">
         <template #default="{ row }">
           <el-button size="small" @click="openEdit(row)">编辑</el-button>
-          <el-button size="small" @click="handleToggleStatus(row)">下架</el-button>
+          <el-button size="small" :type="row.status === 1 ? 'warning' : 'success'" @click="handleToggleStatus(row)">
+            {{ row.status === 1 ? '下架' : '上架' }}
+          </el-button>
           <el-button size="small" @click="goVideos(row.id)">视频</el-button>
           <el-button size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
         </template>

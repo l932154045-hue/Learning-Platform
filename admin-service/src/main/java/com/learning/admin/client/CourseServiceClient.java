@@ -2,12 +2,21 @@ package com.learning.admin.client;
 
 import com.learning.admin.dto.req.CourseSaveReq;
 import com.learning.admin.dto.req.VideoSaveReq;
+import com.learning.common.core.page.PageReq;
+import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @FeignClient(name = "course-service", path = "/api/course")
 public interface CourseServiceClient {
+
+    // Admin course list (all statuses)
+    @GetMapping("/internal/list-all")
+    R<PageResp<Map<String, Object>>> listAllCourses(@SpringQueryMap PageReq req);
 
     // Course CRUD (internal endpoints)
     @PostMapping("/internal")
