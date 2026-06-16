@@ -1,5 +1,6 @@
 package com.learning.learning.mq.consumer;
 
+import com.learning.common.core.exception.BizException;
 import com.learning.learning.mq.message.OrderPaidMessage;
 import com.learning.learning.service.EnrollmentService;
 import com.rabbitmq.client.Channel;
@@ -32,6 +33,14 @@ public class EnrollmentConsumer {
         try {
             log.info("收到选课消息: orderId={}, userId={}, courseId={}", msg.getOrderId(), msg.getUserId(), msg.getCourseId());
 
+            // Validate required fields — malformed messages are discarded
+            if (msg.getUserId() == null || msg.getCourseId() == null) {
+                log.error("选课消息缺少必要字段，已丢弃: orderId={}, userId={}, courseId={}",
+                        msg.getOrderId(), msg.getUserId(), msg.getCourseId());
+                channel.basicAck(tag, false);
+                return;
+            }
+
             // Idempotent check with Redis SETNX
             String lockKey = LOCK_KEY_PREFIX + msg.getOrderId();
             Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "1", Duration.ofHours(LOCK_TTL_HOURS));
@@ -47,14 +56,19 @@ public class EnrollmentConsumer {
             // Manual ACK
             channel.basicAck(tag, false);
             log.info("选课消息处理完成: orderId={}", msg.getOrderId());
-        } catch (Exception e) {
-            log.error("选课消息处理失败: orderId={}, userId={}, courseId={}", msg.getOrderId(), msg.getUserId(), msg.getCourseId(), e);
-
-            // Remove idempotent mark on failure so retry can succeed
+        } catch (BizException e) {
+            // Business errors (e.g. already enrolled) are not retriable — discard
+            log.warn("选课消息业务异常，已丢弃: orderId={}, userId={}, courseId={}, error={}",
+                    msg.getOrderId(), msg.getUserId(), msg.getCourseId(), e.getMessage());
             String lockKey = LOCK_KEY_PREFIX + msg.getOrderId();
             redisTemplate.delete(lockKey);
-
-            // Requeue for retry
+            channel.basicAck(tag, false);
+        } catch (Exception e) {
+            // Transient errors (DB down, network) — requeue for retry
+            log.error("选课消息处理失败，重新入队: orderId={}, userId={}, courseId={}",
+                    msg.getOrderId(), msg.getUserId(), msg.getCourseId(), e);
+            String lockKey = LOCK_KEY_PREFIX + msg.getOrderId();
+            redisTemplate.delete(lockKey);
             channel.basicNack(tag, false, true);
         }
     }
