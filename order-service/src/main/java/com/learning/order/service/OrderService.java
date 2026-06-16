@@ -1,7 +1,10 @@
 package com.learning.order.service;
 
+import com.learning.common.core.page.PageReq;
+import com.learning.common.core.page.PageResp;
 import com.learning.order.dto.req.CreateOrderReq;
 import com.learning.order.dto.resp.OrderDetailVO;
+import com.learning.order.dto.resp.OrderListVO;
 import com.learning.order.dto.resp.OrderSummaryVO;
 
 import java.math.BigDecimal;
@@ -17,4 +20,7 @@ public interface OrderService {
     Long getCourseId(Long orderId);
     BigDecimal getTotalAmount(Long orderId);
     OrderSummaryVO getOrderSummary(Long orderId);
+    PageResp<OrderListVO> listAllOrders(PageReq req);
+    Long getOrderCount();
+    BigDecimal getTotalRevenue();
 }

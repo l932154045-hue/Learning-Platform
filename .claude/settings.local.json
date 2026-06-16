@@ -14,7 +14,10 @@
       "Bash(cat pom.xml)",
       "PowerShell(git *)",
       "Bash(mvn package *)",
-      "Bash(mvn clean *)"
+      "Bash(mvn clean *)",
+      "Bash(curl -s http://localhost:8082/api/course/detail/1)",
+      "Bash(curl -s http://localhost:8080/api/learning/course/1/reviews)",
+      "Bash(curl -s http://localhost:8082/api/course/category/tree)"
     ]
   }
 }

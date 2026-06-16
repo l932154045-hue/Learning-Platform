@@ -1,13 +1,18 @@
 package com.learning.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.learning.common.core.exception.BizException;
+import com.learning.common.core.page.PageReq;
+import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.ResultCode;
 import com.learning.common.security.util.JwtUtil;
 import com.learning.user.dto.req.LoginReq;
 import com.learning.user.dto.req.RegisterReq;
 import com.learning.user.dto.resp.LoginResp;
 import com.learning.user.dto.resp.UserInfoResp;
+import com.learning.user.dto.resp.UserListResp;
 import com.learning.user.entity.User;
 import com.learning.user.mapper.UserMapper;
 import com.learning.user.service.UserService;
@@ -17,6 +22,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -92,5 +100,47 @@ public class UserServiceImpl implements UserService {
         if (req.getEmail() != null) user.setEmail(req.getEmail());
         if (req.getAvatarUrl() != null) user.setAvatarUrl(req.getAvatarUrl());
         userMapper.updateById(user);
+    }
+
+    @Override
+    public PageResp<UserListResp> listUsers(PageReq req) {
+        Page<User> page = new Page<>(req.getPageNum(), req.getPageSize());
+        IPage<User> iPage = userMapper.selectPage(page,
+                new LambdaQueryWrapper<User>().orderByDesc(User::getCreatedAt));
+
+        List<UserListResp> list = iPage.getRecords().stream().map(user -> {
+            UserListResp resp = new UserListResp();
+            BeanUtils.copyProperties(user, resp);
+            return resp;
+        }).collect(Collectors.toList());
+
+        return PageResp.of(list, iPage.getTotal(), req.getPageNum(), req.getPageSize());
+    }
+
+    @Override
+    @Transactional
+    public void updateUserStatus(Long userId, Integer status) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BizException(ResultCode.LOGIN_FAIL);
+        }
+        // Prevent disabling the last admin
+        if (status != null && status == 0 && user.getRole() != null && user.getRole() == 1) {
+            Long adminCount = userMapper.selectCount(
+                    new LambdaQueryWrapper<User>()
+                            .eq(User::getRole, 1)
+                            .eq(User::getStatus, 1));
+            if (adminCount <= 1) {
+                throw new BizException(40010, "无法禁用最后一个管理员账号");
+            }
+        }
+        user.setStatus(status);
+        userMapper.updateById(user);
+        log.info("管理员更新用户状态: userId={}, status={}", userId, status);
+    }
+
+    @Override
+    public Long getUserCount() {
+        return userMapper.selectCount(null);
     }
 }

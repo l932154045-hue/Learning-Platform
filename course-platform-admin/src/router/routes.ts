@@ -16,6 +16,7 @@ export const adminRoutes: RouteRecordRaw[] = [
       { path: 'courses', name: 'CourseManage', component: () => import('@/views/CourseManagePage.vue') },
       { path: 'course/:id/videos', name: 'ChapterVideo', component: () => import('@/views/ChapterVideoPage.vue') },
       { path: 'categories', name: 'CategoryManage', component: () => import('@/views/CategoryManagePage.vue') },
+      { path: 'orders', name: 'OrderManage', component: () => import('@/views/OrderManagePage.vue') },
       { path: 'users', name: 'UserManage', component: () => import('@/views/UserManagePage.vue') },
     ],
   },

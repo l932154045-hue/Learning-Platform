@@ -1,33 +1,33 @@
 package com.learning.admin.controller;
 
-import com.learning.admin.dto.req.UserStatusReq;
-import com.learning.admin.service.UserAdminService;
+import com.learning.admin.service.OrderAdminService;
 import com.learning.common.core.page.PageReq;
 import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/user")
+@RequestMapping("/api/admin/order")
 @RequiredArgsConstructor
-public class UserAdminController {
+public class OrderAdminController {
 
-    private final UserAdminService userAdminService;
+    private final OrderAdminService orderAdminService;
 
     @GetMapping("/list")
     public R<PageResp<Map<String, Object>>> list(PageReq req,
                                                   @RequestAttribute("role") Integer role) {
-        return R.ok(userAdminService.listUsers(req, role));
+        return R.ok(orderAdminService.listOrders(req, role));
     }
 
     @PutMapping("/{id}/status")
     public R<Void> updateStatus(@PathVariable("id") Long id,
-                                 @RequestBody UserStatusReq req,
+                                 @RequestParam Integer status,
                                  @RequestAttribute("role") Integer role) {
-        userAdminService.updateUserStatus(id, req.getStatus(), role);
+        orderAdminService.updateOrderStatus(id, status, role);
         return R.ok();
     }
 }

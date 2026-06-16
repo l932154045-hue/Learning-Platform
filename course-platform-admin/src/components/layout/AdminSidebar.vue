@@ -10,6 +10,7 @@ const menuItems = [
   { path: '/', label: '仪表盘', icon: 'DataBoard' },
   { path: '/courses', label: '课程管理', icon: 'Reading' },
   { path: '/categories', label: '分类管理', icon: 'Collection' },
+  { path: '/orders', label: '订单管理', icon: 'Document' },
   { path: '/users', label: '用户管理', icon: 'User' },
 ]
 

@@ -221,3 +221,35 @@ export interface VideoSaveReq {
 export interface UserStatusReq {
   status: number
 }
+
+export interface UserListItem {
+  id: number
+  username: string
+  nickname: string
+  phone: string
+  email: string | null
+  role: number
+  status: number
+  createdAt: string
+}
+
+export interface DashboardStats {
+  totalCourses: number
+  totalUsers: number
+  totalOrders: number
+  totalRevenue: number
+  recentOrders: OrderListItem[]
+}
+
+export interface OrderListItem {
+  id: number
+  orderNo: string
+  userId: number
+  courseId: number
+  courseTitle: string
+  totalAmount: number
+  status: number
+  statusDesc: string
+  paidAt: string | null
+  createdAt: string
+}

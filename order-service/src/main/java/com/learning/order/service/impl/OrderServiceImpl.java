@@ -1,13 +1,18 @@
 package com.learning.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.learning.common.core.dto.CourseFeignResp;
 import com.learning.common.core.exception.BizException;
+import com.learning.common.core.page.PageReq;
+import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
 import com.learning.common.core.result.ResultCode;
 import com.learning.order.client.CourseClient;
 import com.learning.order.dto.req.CreateOrderReq;
 import com.learning.order.dto.resp.OrderDetailVO;
+import com.learning.order.dto.resp.OrderListVO;
 import com.learning.order.dto.resp.OrderSummaryVO;
 import com.learning.order.entity.Order;
 import com.learning.order.entity.OrderItem;
@@ -230,5 +235,46 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         return "未知";
+    }
+
+    @Override
+    public PageResp<OrderListVO> listAllOrders(PageReq req) {
+        Page<Order> page = new Page<>(req.getPageNum(), req.getPageSize());
+        IPage<Order> iPage = orderMapper.selectPage(page,
+                new LambdaQueryWrapper<Order>().orderByDesc(Order::getCreatedAt));
+
+        List<OrderListVO> list = iPage.getRecords().stream().map(order -> {
+            OrderListVO vo = new OrderListVO();
+            BeanUtils.copyProperties(order, vo);
+            vo.setStatusDesc(getStatusDesc(order.getStatus()));
+
+            // Fill course info from order_item
+            OrderItem item = orderItemMapper.selectOne(
+                    new LambdaQueryWrapper<OrderItem>()
+                            .eq(OrderItem::getOrderId, order.getId()));
+            if (item != null) {
+                vo.setCourseId(item.getCourseId());
+                vo.setCourseTitle(item.getCourseTitle());
+            }
+            return vo;
+        }).collect(Collectors.toList());
+
+        return PageResp.of(list, iPage.getTotal(), req.getPageNum(), req.getPageSize());
+    }
+
+    @Override
+    public Long getOrderCount() {
+        return orderMapper.selectCount(null);
+    }
+
+    @Override
+    public BigDecimal getTotalRevenue() {
+        // Sum total_amount from paid orders
+        List<Order> paidOrders = orderMapper.selectList(
+                new LambdaQueryWrapper<Order>().eq(Order::getStatus, OrderStatusEnum.PAID.getCode()));
+        return paidOrders.stream()
+                .map(Order::getTotalAmount)
+                .filter(java.util.Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
