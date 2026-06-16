@@ -15,7 +15,7 @@ import java.util.List;
 public interface CourseMapper extends BaseMapper<Course> {
     @Select("<script>SELECT * FROM course WHERE status = 1 " +
             "<if test='keyword != null and keyword != \"\"'>" +
-            "AND MATCH(title, description) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE) " +
+            "AND (title LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%')) " +
             "</if>" +
             "<if test='categoryIds != null and categoryIds.size() > 0'>" +
             "AND category_id IN <foreach collection='categoryIds' item='cid' open='(' separator=',' close=')'>#{cid}</foreach>" +
