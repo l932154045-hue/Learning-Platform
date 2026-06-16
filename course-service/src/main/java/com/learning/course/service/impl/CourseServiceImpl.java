@@ -44,9 +44,17 @@ public class CourseServiceImpl implements CourseService {
     public PageResp<CourseListItemVO> searchCourses(CourseSearchReq req) {
         String sort = ALLOWED_SORT.contains(req.getSort()) ? req.getSort() : "saleCount_desc";
 
+        // Resolve category IDs: if a category is selected, include its children
+        List<Long> categoryIds = null;
+        if (req.getCategoryId() != null) {
+            categoryIds = new ArrayList<>();
+            categoryIds.add(req.getCategoryId());
+            collectChildCategoryIds(req.getCategoryId(), categoryIds);
+        }
+
         Page<Course> page = new Page<>(req.getPageNum(), req.getPageSize());
         IPage<Course> iPage = courseMapper.searchCourses(page,
-                req.getKeyword(), req.getCategoryId(),
+                req.getKeyword(), categoryIds,
                 req.getPriceMin(), req.getPriceMax(), sort);
 
         List<CourseListItemVO> list = iPage.getRecords().stream().map(course -> {
@@ -122,6 +130,16 @@ public class CourseServiceImpl implements CourseService {
             }
         }
         return result;
+    }
+
+    private void collectChildCategoryIds(Long parentId, List<Long> result) {
+        List<CourseCategory> children = categoryMapper.selectList(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<CourseCategory>()
+                        .eq(CourseCategory::getParentId, parentId));
+        for (CourseCategory child : children) {
+            result.add(child.getId());
+            collectChildCategoryIds(child.getId(), result);
+        }
     }
 
     @Override
