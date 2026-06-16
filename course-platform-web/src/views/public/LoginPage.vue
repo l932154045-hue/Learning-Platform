@@ -46,15 +46,18 @@ async function handleLogin() {
         return
       }
 
+      // 立即拉取用户信息，避免页面跳转后 nav 栏不更新
+      try {
+        const userRes = await userApi.getInfo()
+        if (userRes.data.data) {
+          authStore.setUser(userRes.data.data)
+        }
+      } catch { /* token 有效即可 */ }
+
       ElMessage.success('登录成功')
 
-      // 根据身份跳转不同页面
-      if (loginRole.value === 'admin') {
-        router.push('/admin')
-      } else {
-        const redirect = (route.query.redirect as string) || '/'
-        router.push(redirect)
-      }
+      const redirect = (route.query.redirect as string) || '/'
+      router.push(redirect)
     }
   } catch {
     /* error handled by interceptor */
