@@ -76,7 +76,8 @@ public class DashboardServiceImpl implements DashboardService {
             pageReq.setPageNum(1);
             pageReq.setPageSize(10);
             R<PageResp<Map<String, Object>>> orders = orderServiceClient.listOrders(pageReq);
-            if (orders != null && orders.getCode() == 200 && orders.getData() != null) {
+            if (orders != null && orders.getCode() == 200 && orders.getData() != null
+                    && orders.getData().getRecords() != null) {
                 stats.setRecentOrders(orders.getData().getRecords());
             }
         } catch (Exception e) {

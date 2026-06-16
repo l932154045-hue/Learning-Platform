@@ -42,8 +42,8 @@ async function fetch() {
       adminCourseApi.getCourses(),
       adminCourseApi.getCategories(),
     ])
-    courses.value = cRes.data.data?.records ?? []
-    categories.value = catRes.data.data ?? []
+    courses.value = cRes.data?.data?.records ?? []
+    categories.value = catRes.data?.data ?? []
   } finally { loading.value = false }
 }
 

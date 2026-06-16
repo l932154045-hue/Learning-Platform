@@ -44,8 +44,10 @@ public class CourseAdminServiceImpl implements CourseAdminService {
         List<CourseListItemVO> list = iPage.getRecords().stream().map(course -> {
             CourseListItemVO vo = new CourseListItemVO();
             BeanUtils.copyProperties(course, vo);
-            CourseCategory cat = categoryMapper.selectById(course.getCategoryId());
-            if (cat != null) vo.setCategoryName(cat.getName());
+            if (course.getCategoryId() != null) {
+                CourseCategory cat = categoryMapper.selectById(course.getCategoryId());
+                if (cat != null) vo.setCategoryName(cat.getName());
+            }
             return vo;
         }).collect(Collectors.toList());
 
