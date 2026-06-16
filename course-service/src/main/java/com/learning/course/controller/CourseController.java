@@ -3,6 +3,7 @@ package com.learning.course.controller;
 import com.learning.common.core.dto.CourseFeignResp;
 import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
+import com.learning.course.cache.CourseCacheService;
 import com.learning.course.dto.req.CourseSearchReq;
 import com.learning.course.dto.resp.CourseCategoryVO;
 import com.learning.course.dto.resp.CourseDetailVO;
@@ -10,6 +11,7 @@ import com.learning.course.dto.resp.CourseListItemVO;
 import com.learning.course.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +22,11 @@ import java.util.List;
 public class CourseController {
 
     private final CourseService courseService;
+    private final CourseCacheService courseCacheService;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private static final String CATEGORY_TREE_KEY = "course:category:tree";
+    private static final String HOT_TOP10_KEY = "course:hot:top10";
 
     @GetMapping("/category/tree")
     public R<List<CourseCategoryVO>> getCategoryTree() {
@@ -44,5 +51,13 @@ public class CourseController {
     @GetMapping("/batch")
     public R<List<CourseFeignResp>> batch(@RequestParam("ids") List<Long> ids) {
         return R.ok(courseService.getCourseBatch(ids));
+    }
+
+    @PostMapping("/cache/refresh")
+    public R<String> refreshCache() {
+        courseCacheService.evictAllCourseDetail();
+        redisTemplate.delete(CATEGORY_TREE_KEY);
+        redisTemplate.delete(HOT_TOP10_KEY);
+        return R.ok("缓存已刷新：课程详情 + 分类树 + 热门课程");
     }
 }

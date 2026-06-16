@@ -93,13 +93,24 @@ async function handleToggleStatus(row: CourseListItemVO) {
 }
 
 function goVideos(id: number) { router.push(`/course/${id}/videos`) }
+
+async function handleRefreshCache() {
+  try {
+    await adminCourseApi.refreshCache()
+    ElMessage.success('缓存已刷新')
+    fetch()
+  } catch { ElMessage.error('刷新失败') }
+}
 </script>
 
 <template>
   <div class="page">
     <div class="page-head">
       <h1>课程管理</h1>
-      <el-button type="primary" @click="openCreate">创建课程</el-button>
+      <div class="page-head-actions">
+        <el-button type="warning" plain @click="handleRefreshCache">刷新缓存</el-button>
+        <el-button type="primary" @click="openCreate">创建课程</el-button>
+      </div>
     </div>
     <el-table :data="courses" v-loading="loading" border stripe>
       <el-table-column prop="id" label="ID" width="60" />
@@ -145,4 +156,5 @@ function goVideos(id: number) { router.push(`/course/${id}/videos`) }
 .page { padding: var(--space-lg); }
 .page-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); }
 .page-head h1 { font-size: var(--font-size-xl); font-weight: 700; }
+.page-head-actions { display: flex; gap: var(--space-sm); }
 </style>

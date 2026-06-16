@@ -83,4 +83,15 @@ public class CourseCacheService {
         redisTemplate.delete(DETAIL_KEY + courseId);
         caffeineCache.invalidate(courseId);
     }
+
+    public void evictAllCourseDetail() {
+        // Clear Caffeine local cache
+        caffeineCache.invalidateAll();
+        // Clear Redis course detail keys
+        var keys = redisTemplate.keys(DETAIL_KEY + "*");
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+        log.info("已清除所有课程详情缓存");
+    }
 }

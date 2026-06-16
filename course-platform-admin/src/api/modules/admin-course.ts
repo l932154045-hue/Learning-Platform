@@ -13,4 +13,5 @@ export const adminCourseApi = {
   // Use public endpoints to list courses
   getCourses: () => http.get<R<{ records: CourseListItemVO[]; total: number }>>('/api/course/list', { params: { pageSize: 100 } }),
   getCategories: () => http.get<R<CourseCategoryVO[]>>('/api/course/category/tree'),
+  refreshCache: () => http.post<R<string>>('/api/course/cache/refresh'),
 }
