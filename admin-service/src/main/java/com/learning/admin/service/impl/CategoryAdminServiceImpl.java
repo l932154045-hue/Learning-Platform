@@ -24,9 +24,7 @@ public class CategoryAdminServiceImpl implements CategoryAdminService {
     public void createCategory(String name, Long parentId, Integer sortOrder, Integer role) {
         authService.checkAdmin(role);
         R<Long> result = courseServiceClient.createCategory(name, parentId, sortOrder);
-        if (result.getCode() != 200) {
-            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
-        }
+        checkFeignResult(result);
         sendCategoryMsg(result.getData(), 1);
         log.info("管理员创建分类成功: name={}, parentId={}, id={}", name, parentId, result.getData());
     }
@@ -35,9 +33,7 @@ public class CategoryAdminServiceImpl implements CategoryAdminService {
     public void updateCategory(Long id, String name, Integer sortOrder, Integer role) {
         authService.checkAdmin(role);
         R<Void> result = courseServiceClient.updateCategory(id, name, sortOrder);
-        if (result.getCode() != 200) {
-            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
-        }
+        checkFeignResult(result);
         sendCategoryMsg(id, 1);
         log.info("管理员更新分类成功: id={}, name={}", id, name);
     }
@@ -46,9 +42,7 @@ public class CategoryAdminServiceImpl implements CategoryAdminService {
     public void deleteCategory(Long id, Integer role) {
         authService.checkAdmin(role);
         R<Void> result = courseServiceClient.deleteCategory(id);
-        if (result.getCode() != 200) {
-            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
-        }
+        checkFeignResult(result);
         sendCategoryMsg(id, 2);
         log.info("管理员删除分类成功: id={}", id);
     }
@@ -58,5 +52,11 @@ public class CategoryAdminServiceImpl implements CategoryAdminService {
         msg.setCategoryId(categoryId);
         msg.setOperation(operation);
         eventProducer.sendCategoryUpdated(msg);
+    }
+
+    private void checkFeignResult(R<?> result) {
+        if (result == null || result.getCode() != 200) {
+            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
+        }
     }
 }

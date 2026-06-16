@@ -25,7 +25,7 @@ public class UserAdminServiceImpl implements UserAdminService {
     public void updateUserStatus(Long userId, Integer status, Integer role) {
         authService.checkAdmin(role);
         R<Void> result = userServiceClient.updateUserStatus(userId, status);
-        if (result.getCode() != 200) {
+        if (result == null || result.getCode() != 200) {
             throw new BizException(ResultCode.REMOTE_CALL_ERROR);
         }
         log.info("管理员更新用户状态: userId={}, status={}", userId, status);
@@ -35,7 +35,7 @@ public class UserAdminServiceImpl implements UserAdminService {
     public PageResp<Map<String, Object>> listUsers(PageReq req, Integer role) {
         authService.checkAdmin(role);
         R<PageResp<Map<String, Object>>> result = userServiceClient.listUsers(req);
-        if (result.getCode() != 200) {
+        if (result == null || result.getCode() != 200) {
             throw new BizException(ResultCode.REMOTE_CALL_ERROR);
         }
         return result.getData();

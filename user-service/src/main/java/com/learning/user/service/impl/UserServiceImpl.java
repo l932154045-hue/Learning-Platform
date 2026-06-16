@@ -131,7 +131,7 @@ public class UserServiceImpl implements UserService {
                             .eq(User::getRole, 1)
                             .eq(User::getStatus, 1));
             if (adminCount <= 1) {
-                throw new BizException(40010, "无法禁用最后一个管理员账号");
+                throw new BizException(40019, "无法禁用最后一个管理员账号");
             }
         }
         user.setStatus(status);

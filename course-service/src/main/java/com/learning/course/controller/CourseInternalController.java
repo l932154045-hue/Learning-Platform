@@ -113,7 +113,8 @@ public class CourseInternalController {
     // ===== Stats =====
 
     @GetMapping("/count")
-    public R<Long> getCourseCount() {
+    public R<Long> getCourseCount(@RequestAttribute(value = "role", required = false) Integer role) {
+        checkAdmin(role);
         return R.ok(courseAdminService.getCourseCount());
     }
 

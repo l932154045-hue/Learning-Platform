@@ -27,9 +27,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void createCourse(CourseSaveReq req, Integer role) {
         authService.checkAdmin(role);
         R<Long> result = courseServiceClient.createCourse(req);
-        if (result.getCode() != 200) {
-            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
-        }
+        checkFeignResult(result);
         log.info("管理员创建课程成功: title={}, id={}", req.getTitle(), result.getData());
     }
 
@@ -37,10 +35,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void updateCourse(Long id, CourseSaveReq req, Integer role) {
         authService.checkAdmin(role);
         R<Void> result = courseServiceClient.updateCourse(id, req);
-        if (result.getCode() != 200) {
-            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
-        }
-        // Send MQ for cache refresh
+        checkFeignResult(result);
         CourseUpdatedMessage msg = new CourseUpdatedMessage();
         msg.setCourseId(id);
         msg.setOperation(1);
@@ -52,9 +47,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void deleteCourse(Long id, Integer role) {
         authService.checkAdmin(role);
         R<Void> result = courseServiceClient.deleteCourse(id);
-        if (result.getCode() != 200) {
-            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
-        }
+        checkFeignResult(result);
         CourseUpdatedMessage msg = new CourseUpdatedMessage();
         msg.setCourseId(id);
         msg.setOperation(3);
@@ -66,9 +59,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void updateStatus(Long id, Integer status, Integer role) {
         authService.checkAdmin(role);
         R<Void> result = courseServiceClient.updateStatus(id, status);
-        if (result.getCode() != 200) {
-            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
-        }
+        checkFeignResult(result);
         CourseUpdatedMessage msg = new CourseUpdatedMessage();
         msg.setCourseId(id);
         msg.setOperation(2);
@@ -80,9 +71,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void addVideo(VideoSaveReq req, Integer role) {
         authService.checkAdmin(role);
         R<Void> result = courseServiceClient.addVideo(req);
-        if (result.getCode() != 200) {
-            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
-        }
+        checkFeignResult(result);
         log.info("管理员添加视频: courseId={}, video={}", req.getCourseId(), req.getVideoTitle());
     }
 
@@ -90,9 +79,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void updateVideo(Long id, VideoSaveReq req, Integer role) {
         authService.checkAdmin(role);
         R<Void> result = courseServiceClient.updateVideo(id, req);
-        if (result.getCode() != 200) {
-            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
-        }
+        checkFeignResult(result);
         log.info("管理员更新视频: id={}", id);
     }
 
@@ -100,9 +87,13 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void deleteVideo(Long id, Integer role) {
         authService.checkAdmin(role);
         R<Void> result = courseServiceClient.deleteVideo(id);
-        if (result.getCode() != 200) {
+        checkFeignResult(result);
+        log.info("管理员删除视频: id={}", id);
+    }
+
+    private void checkFeignResult(R<?> result) {
+        if (result == null || result.getCode() != 200) {
             throw new BizException(ResultCode.REMOTE_CALL_ERROR);
         }
-        log.info("管理员删除视频: id={}", id);
     }
 }

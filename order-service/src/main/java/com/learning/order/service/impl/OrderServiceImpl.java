@@ -35,6 +35,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -243,15 +244,19 @@ public class OrderServiceImpl implements OrderService {
         IPage<Order> iPage = orderMapper.selectPage(page,
                 new LambdaQueryWrapper<Order>().orderByDesc(Order::getCreatedAt));
 
+        // Batch-fetch order items to avoid N+1
+        List<Long> orderIds = iPage.getRecords().stream().map(Order::getId).collect(Collectors.toList());
+        List<OrderItem> allItems = orderIds.isEmpty() ? List.of()
+                : orderItemMapper.selectList(new LambdaQueryWrapper<OrderItem>().in(OrderItem::getOrderId, orderIds));
+        Map<Long, OrderItem> itemMap = allItems.stream()
+                .collect(Collectors.toMap(OrderItem::getOrderId, i -> i, (a, b) -> a));
+
         List<OrderListVO> list = iPage.getRecords().stream().map(order -> {
             OrderListVO vo = new OrderListVO();
             BeanUtils.copyProperties(order, vo);
             vo.setStatusDesc(getStatusDesc(order.getStatus()));
 
-            // Fill course info from order_item
-            OrderItem item = orderItemMapper.selectOne(
-                    new LambdaQueryWrapper<OrderItem>()
-                            .eq(OrderItem::getOrderId, order.getId()));
+            OrderItem item = itemMap.get(order.getId());
             if (item != null) {
                 vo.setCourseId(item.getCourseId());
                 vo.setCourseTitle(item.getCourseTitle());
@@ -269,12 +274,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public BigDecimal getTotalRevenue() {
-        // Sum total_amount from paid orders
-        List<Order> paidOrders = orderMapper.selectList(
-                new LambdaQueryWrapper<Order>().eq(Order::getStatus, OrderStatusEnum.PAID.getCode()));
-        return paidOrders.stream()
-                .map(Order::getTotalAmount)
-                .filter(java.util.Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return orderMapper.selectTotalRevenue();
     }
 }

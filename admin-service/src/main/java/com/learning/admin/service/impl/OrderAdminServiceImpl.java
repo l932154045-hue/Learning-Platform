@@ -26,7 +26,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
     public PageResp<Map<String, Object>> listOrders(PageReq req, Integer role) {
         authService.checkAdmin(role);
         R<PageResp<Map<String, Object>>> result = orderServiceClient.listOrders(req);
-        if (result.getCode() != 200) {
+        if (result == null || result.getCode() != 200) {
             throw new BizException(ResultCode.REMOTE_CALL_ERROR);
         }
         return result.getData();
@@ -36,7 +36,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
     public void updateOrderStatus(Long orderId, Integer status, Integer role) {
         authService.checkAdmin(role);
         R<Void> result = orderServiceClient.updateStatus(orderId, status);
-        if (result.getCode() != 200) {
+        if (result == null || result.getCode() != 200) {
             throw new BizException(ResultCode.REMOTE_CALL_ERROR);
         }
         log.info("管理员更新订单状态: orderId={}, status={}", orderId, status);
@@ -46,7 +46,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
     public Long getOrderCount(Integer role) {
         authService.checkAdmin(role);
         R<Long> result = orderServiceClient.getOrderCount();
-        if (result.getCode() != 200) {
+        if (result == null || result.getCode() != 200) {
             throw new BizException(ResultCode.REMOTE_CALL_ERROR);
         }
         return result.getData();
@@ -56,7 +56,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
     public BigDecimal getTotalRevenue(Integer role) {
         authService.checkAdmin(role);
         R<BigDecimal> result = orderServiceClient.getTotalRevenue();
-        if (result.getCode() != 200) {
+        if (result == null || result.getCode() != 200) {
             throw new BizException(ResultCode.REMOTE_CALL_ERROR);
         }
         return result.getData();
