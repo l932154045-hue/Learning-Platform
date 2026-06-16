@@ -1,7 +1,7 @@
 package com.learning.admin.service.impl;
 
 import com.learning.admin.mq.message.CategoryUpdatedMessage;
-import com.learning.admin.mq.producer.CourseEventProducer;
+import com.learning.admin.mq.producer.AdminEventProducer;
 import com.learning.admin.service.AdminAuthService;
 import com.learning.admin.service.CategoryAdminService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CategoryAdminServiceImpl implements CategoryAdminService {
     private final AdminAuthService authService;
-    private final CourseEventProducer courseEventProducer;
+    private final AdminEventProducer eventProducer;
 
     @Override
     public void createCategory(String name, Long parentId, Integer sortOrder, Integer role) {
@@ -40,6 +40,6 @@ public class CategoryAdminServiceImpl implements CategoryAdminService {
         CategoryUpdatedMessage msg = new CategoryUpdatedMessage();
         msg.setCategoryId(categoryId);
         msg.setOperation(operation);
-        courseEventProducer.sendCategoryUpdated(msg);
+        eventProducer.sendCategoryUpdated(msg);
     }
 }

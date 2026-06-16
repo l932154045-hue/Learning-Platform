@@ -84,14 +84,32 @@ public class CourseCacheService {
         caffeineCache.invalidate(courseId);
     }
 
+    private static final String CATEGORY_TREE_KEY = "course:category:tree";
+    private static final String HOT_TOP10_KEY = "course:hot:top10";
+
     public void evictAllCourseDetail() {
-        // Clear Caffeine local cache
         caffeineCache.invalidateAll();
-        // Clear Redis course detail keys
         var keys = redisTemplate.keys(DETAIL_KEY + "*");
         if (keys != null && !keys.isEmpty()) {
             redisTemplate.delete(keys);
         }
         log.info("已清除所有课程详情缓存");
+    }
+
+    public void evictCategoryTree() {
+        redisTemplate.delete(CATEGORY_TREE_KEY);
+        log.info("已清除分类树缓存");
+    }
+
+    public void evictHotTop10() {
+        redisTemplate.delete(HOT_TOP10_KEY);
+        log.info("已清除热门课程缓存");
+    }
+
+    public void refreshAllCaches() {
+        evictAllCourseDetail();
+        evictCategoryTree();
+        evictHotTop10();
+        log.info("已刷新全部缓存：课程详情 + 分类树 + 热门课程");
     }
 }

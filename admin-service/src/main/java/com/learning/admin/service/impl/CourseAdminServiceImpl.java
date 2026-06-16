@@ -3,7 +3,7 @@ package com.learning.admin.service.impl;
 import com.learning.admin.dto.req.CourseSaveReq;
 import com.learning.admin.dto.req.VideoSaveReq;
 import com.learning.admin.mq.message.CourseUpdatedMessage;
-import com.learning.admin.mq.producer.CourseEventProducer;
+import com.learning.admin.mq.producer.AdminEventProducer;
 import com.learning.admin.service.AdminAuthService;
 import com.learning.admin.service.CourseAdminService;
 import com.learning.common.core.exception.BizException;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class CourseAdminServiceImpl implements CourseAdminService {
 
     private final AdminAuthService authService;
-    private final CourseEventProducer courseEventProducer;
+    private final AdminEventProducer eventProducer;
 
     @Override
     public void createCourse(CourseSaveReq req, Integer role) {
@@ -34,7 +34,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
         CourseUpdatedMessage msg = new CourseUpdatedMessage();
         msg.setCourseId(id);
         msg.setOperation(1);
-        courseEventProducer.sendCourseUpdated(msg);
+        eventProducer.sendCourseUpdated(msg);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
         CourseUpdatedMessage msg = new CourseUpdatedMessage();
         msg.setCourseId(id);
         msg.setOperation(3);
-        courseEventProducer.sendCourseUpdated(msg);
+        eventProducer.sendCourseUpdated(msg);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
         CourseUpdatedMessage msg = new CourseUpdatedMessage();
         msg.setCourseId(id);
         msg.setOperation(2);
-        courseEventProducer.sendCourseUpdated(msg);
+        eventProducer.sendCourseUpdated(msg);
     }
 
     @Override

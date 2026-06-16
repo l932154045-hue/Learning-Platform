@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CourseEventProducer {
+public class AdminEventProducer {
     private final RabbitTemplate rabbitTemplate;
     private static final String COURSE_TOPIC = "course.topic";
     private static final String RK_COURSE_UPDATED = "course.updated";

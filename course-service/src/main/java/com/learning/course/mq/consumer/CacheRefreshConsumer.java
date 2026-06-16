@@ -7,11 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -19,24 +20,29 @@ import java.io.IOException;
 public class CacheRefreshConsumer {
 
     private final CourseCacheService courseCacheService;
-    private final RedisTemplate<String, Object> redisTemplate;
-
-    private static final String CATEGORY_TREE_KEY = "course:category:tree";
-    private static final String HOT_TOP10_KEY = "course:hot:top10";
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_COURSE_UPDATED_CACHE)
-    public void handleCourseUpdated(Channel channel,
+    public void handleCourseUpdated(@Payload Object msg,
+                                     Channel channel,
                                      @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
         try {
-            log.info("收到缓存刷新消息，清除课程详情缓存...");
-            courseCacheService.evictAllCourseDetail();
-            redisTemplate.delete(HOT_TOP10_KEY);
-            redisTemplate.delete(CATEGORY_TREE_KEY);
-            log.info("缓存刷新完成: 课程详情 + 热榜 + 分类树");
+            String eventType = "unknown";
+            if (msg instanceof Map) {
+                Object et = ((Map<?, ?>) msg).get("eventType");
+                if (et != null) eventType = et.toString();
+            }
+            log.info("收到缓存刷新消息: eventType={}", eventType);
+
+            // TODO: 后续可根据 eventType 做差异化清除
+            // 目前安全策略：全量清除，保证数据一致性
+            courseCacheService.refreshAllCaches();
+
             channel.basicAck(tag, false);
+            log.info("缓存刷新完成");
         } catch (Exception e) {
-            log.error("缓存刷新失败", e);
-            channel.basicNack(tag, false, true);
+            // 缓存操作幂等，失败直接丢弃不重试，管理后台可手动刷新
+            log.error("缓存刷新失败，已丢弃消息", e);
+            channel.basicAck(tag, false);
         }
     }
 }

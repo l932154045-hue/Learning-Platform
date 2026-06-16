@@ -1,8 +1,10 @@
 package com.learning.course.controller;
 
 import com.learning.common.core.dto.CourseFeignResp;
+import com.learning.common.core.exception.BizException;
 import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
+import com.learning.common.core.result.ResultCode;
 import com.learning.course.cache.CourseCacheService;
 import com.learning.course.dto.req.CourseSearchReq;
 import com.learning.course.dto.resp.CourseCategoryVO;
@@ -11,7 +13,6 @@ import com.learning.course.dto.resp.CourseListItemVO;
 import com.learning.course.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,10 +24,6 @@ public class CourseController {
 
     private final CourseService courseService;
     private final CourseCacheService courseCacheService;
-    private final RedisTemplate<String, Object> redisTemplate;
-
-    private static final String CATEGORY_TREE_KEY = "course:category:tree";
-    private static final String HOT_TOP10_KEY = "course:hot:top10";
 
     @GetMapping("/category/tree")
     public R<List<CourseCategoryVO>> getCategoryTree() {
@@ -54,10 +51,12 @@ public class CourseController {
     }
 
     @PostMapping("/cache/refresh")
-    public R<String> refreshCache() {
-        courseCacheService.evictAllCourseDetail();
-        redisTemplate.delete(CATEGORY_TREE_KEY);
-        redisTemplate.delete(HOT_TOP10_KEY);
+    public R<String> refreshCache(@RequestAttribute(value = "role", required = false) Integer role) {
+        // 仅管理员可刷新缓存，Feign 内部调用时 role 为 null 放行
+        if (role != null && role != 1) {
+            throw new BizException(ResultCode.FORBIDDEN);
+        }
+        courseCacheService.refreshAllCaches();
         return R.ok("缓存已刷新：课程详情 + 分类树 + 热门课程");
     }
 }
