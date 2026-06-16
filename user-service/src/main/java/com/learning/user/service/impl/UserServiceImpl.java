@@ -103,10 +103,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageResp<UserListResp> listUsers(PageReq req) {
+    public PageResp<UserListResp> listUsers(PageReq req, String keyword, Integer role, Integer status) {
+        LambdaQueryWrapper<User> qw = new LambdaQueryWrapper<User>()
+                .orderByDesc(User::getCreatedAt);
+        if (keyword != null && !keyword.isBlank()) {
+            qw.and(w -> w.like(User::getUsername, keyword)
+                    .or().like(User::getNickname, keyword)
+                    .or().like(User::getPhone, keyword));
+        }
+        if (role != null) {
+            qw.eq(User::getRole, role);
+        }
+        if (status != null) {
+            qw.eq(User::getStatus, status);
+        }
         Page<User> page = new Page<>(req.getPageNum(), req.getPageSize());
-        IPage<User> iPage = userMapper.selectPage(page,
-                new LambdaQueryWrapper<User>().orderByDesc(User::getCreatedAt));
+        IPage<User> iPage = userMapper.selectPage(page, qw);
 
         List<UserListResp> list = iPage.getRecords().stream().map(user -> {
             UserListResp resp = new UserListResp();

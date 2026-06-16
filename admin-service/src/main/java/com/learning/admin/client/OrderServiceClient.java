@@ -14,7 +14,9 @@ import java.util.Map;
 public interface OrderServiceClient {
 
     @GetMapping("/internal/list")
-    R<PageResp<Map<String, Object>>> listOrders(@SpringQueryMap PageReq req);
+    R<PageResp<Map<String, Object>>> listOrders(@SpringQueryMap PageReq req,
+                                                 @RequestParam(required = false) String keyword,
+                                                 @RequestParam(required = false) Integer status);
 
     @GetMapping("/internal/count")
     R<Long> getOrderCount();

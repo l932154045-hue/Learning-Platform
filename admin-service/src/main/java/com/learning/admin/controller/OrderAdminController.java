@@ -19,8 +19,10 @@ public class OrderAdminController {
 
     @GetMapping("/list")
     public R<PageResp<Map<String, Object>>> list(PageReq req,
+                                                  @RequestParam(required = false) String keyword,
+                                                  @RequestParam(required = false) Integer status,
                                                   @RequestAttribute("role") Integer role) {
-        return R.ok(orderAdminService.listOrders(req, role));
+        return R.ok(orderAdminService.listOrders(req, keyword, status, role));
     }
 
     @PutMapping("/{id}/status")

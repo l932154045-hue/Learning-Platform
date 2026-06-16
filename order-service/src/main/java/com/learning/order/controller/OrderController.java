@@ -99,11 +99,13 @@ public class OrderController {
 
     @GetMapping("/internal/list")
     public R<PageResp<OrderListVO>> listAll(PageReq req,
+                                             @RequestParam(required = false) String keyword,
+                                             @RequestParam(required = false) Integer status,
                                              @RequestAttribute(value = "role", required = false) Integer role) {
         if (role != null && role != 1) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
-        return R.ok(orderService.listAllOrders(req));
+        return R.ok(orderService.listAllOrders(req, keyword, status));
     }
 
     @GetMapping("/internal/count")

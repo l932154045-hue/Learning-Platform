@@ -96,9 +96,9 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     }
 
     @Override
-    public PageResp<Map<String, Object>> listCourses(PageReq req, Integer role) {
+    public PageResp<Map<String, Object>> listCourses(PageReq req, String keyword, String teacherName, Integer status, Integer role) {
         authService.checkAdmin(role);
-        R<PageResp<Map<String, Object>>> result = courseServiceClient.listAllCourses(req);
+        R<PageResp<Map<String, Object>>> result = courseServiceClient.listAllCourses(req, keyword, teacherName, status);
         if (result == null || result.getCode() != 200) {
             throw new BizException(ResultCode.REMOTE_CALL_ERROR);
         }

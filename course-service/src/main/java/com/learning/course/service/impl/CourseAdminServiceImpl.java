@@ -37,9 +37,9 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     private final CourseCacheService courseCacheService;
 
     @Override
-    public PageResp<CourseListItemVO> listAllCourses(PageReq req) {
+    public PageResp<CourseListItemVO> listAllCourses(PageReq req, String keyword, String teacherName, Integer status) {
         Page<Course> page = new Page<>(req.getPageNum(), req.getPageSize());
-        IPage<Course> iPage = courseMapper.searchAllCourses(page, null, null);
+        IPage<Course> iPage = courseMapper.searchAllCourses(page, keyword, null, teacherName, status);
 
         List<CourseListItemVO> list = iPage.getRecords().stream().map(course -> {
             CourseListItemVO vo = new CourseListItemVO();

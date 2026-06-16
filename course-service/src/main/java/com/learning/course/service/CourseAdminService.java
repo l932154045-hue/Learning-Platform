@@ -7,7 +7,7 @@ import com.learning.course.dto.req.VideoSaveReq;
 import com.learning.course.dto.resp.CourseListItemVO;
 
 public interface CourseAdminService {
-    PageResp<CourseListItemVO> listAllCourses(PageReq req);
+    PageResp<CourseListItemVO> listAllCourses(PageReq req, String keyword, String teacherName, Integer status);
     Long createCourse(CourseSaveReq req);
     void updateCourse(Long id, CourseSaveReq req);
     void deleteCourse(Long id);

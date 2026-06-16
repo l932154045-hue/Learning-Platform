@@ -115,9 +115,12 @@ public class CourseInternalController {
     @GetMapping("/list-all")
     public R<com.learning.common.core.page.PageResp<com.learning.course.dto.resp.CourseListItemVO>> listAll(
             com.learning.common.core.page.PageReq req,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String teacherName,
+            @RequestParam(required = false) Integer status,
             @RequestAttribute(value = "role", required = false) Integer role) {
         checkAdmin(role);
-        return R.ok(courseAdminService.listAllCourses(req));
+        return R.ok(courseAdminService.listAllCourses(req, keyword, teacherName, status));
     }
 
     @GetMapping("/count")

@@ -245,10 +245,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public PageResp<OrderListVO> listAllOrders(PageReq req) {
+    public PageResp<OrderListVO> listAllOrders(PageReq req, String keyword, Integer status) {
+        LambdaQueryWrapper<Order> qw = new LambdaQueryWrapper<Order>()
+                .orderByDesc(Order::getCreatedAt);
+        if (keyword != null && !keyword.isBlank()) {
+            qw.like(Order::getOrderNo, keyword);
+        }
+        if (status != null) {
+            qw.eq(Order::getStatus, status);
+        }
         Page<Order> page = new Page<>(req.getPageNum(), req.getPageSize());
-        IPage<Order> iPage = orderMapper.selectPage(page,
-                new LambdaQueryWrapper<Order>().orderByDesc(Order::getCreatedAt));
+        IPage<Order> iPage = orderMapper.selectPage(page, qw);
 
         // Batch-fetch order items to avoid N+1
         List<Long> orderIds = iPage.getRecords().stream().map(Order::getId).collect(Collectors.toList());

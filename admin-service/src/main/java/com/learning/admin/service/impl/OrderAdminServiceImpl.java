@@ -23,9 +23,9 @@ public class OrderAdminServiceImpl implements OrderAdminService {
     private final OrderServiceClient orderServiceClient;
 
     @Override
-    public PageResp<Map<String, Object>> listOrders(PageReq req, Integer role) {
+    public PageResp<Map<String, Object>> listOrders(PageReq req, String keyword, Integer status, Integer role) {
         authService.checkAdmin(role);
-        R<PageResp<Map<String, Object>>> result = orderServiceClient.listOrders(req);
+        R<PageResp<Map<String, Object>>> result = orderServiceClient.listOrders(req, keyword, status);
         if (result == null || result.getCode() != 200) {
             throw new BizException(ResultCode.REMOTE_CALL_ERROR);
         }

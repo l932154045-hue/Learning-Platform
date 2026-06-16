@@ -13,7 +13,7 @@ public interface UserService {
     LoginResp login(LoginReq req);
     UserInfoResp getUserInfo(Long userId);
     void updateUserInfo(Long userId, UserInfoResp req);
-    PageResp<UserListResp> listUsers(PageReq req);
+    PageResp<UserListResp> listUsers(PageReq req, String keyword, Integer role, Integer status);
     void updateUserStatus(Long userId, Integer status);
     Long getUserCount();
 }

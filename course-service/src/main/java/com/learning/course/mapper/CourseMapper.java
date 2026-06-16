@@ -38,7 +38,15 @@ public interface CourseMapper extends BaseMapper<Course> {
             "<if test='categoryIds != null and categoryIds.size() > 0'>" +
             "AND category_id IN <foreach collection='categoryIds' item='cid' open='(' separator=',' close=')'>#{cid}</foreach>" +
             "</if> " +
+            "<if test='teacherName != null and teacherName != \"\"'>" +
+            "AND teacher_name LIKE CONCAT('%', #{teacherName}, '%') " +
+            "</if>" +
+            "<if test='status != null'>" +
+            "AND status = #{status} " +
+            "</if>" +
             "ORDER BY created_at DESC</script>")
     IPage<Course> searchAllCourses(Page<Course> page, @Param("keyword") String keyword,
-            @Param("categoryIds") List<Long> categoryIds);
+            @Param("categoryIds") List<Long> categoryIds,
+            @Param("teacherName") String teacherName,
+            @Param("status") Integer status);
 }

@@ -8,7 +8,7 @@ import com.learning.common.core.page.PageResp;
 import java.util.Map;
 
 public interface CourseAdminService {
-    PageResp<Map<String, Object>> listCourses(PageReq req, Integer role);
+    PageResp<Map<String, Object>> listCourses(PageReq req, String keyword, String teacherName, Integer status, Integer role);
     void createCourse(CourseSaveReq req, Integer role);
     void updateCourse(Long id, CourseSaveReq req, Integer role);
     void deleteCourse(Long id, Integer role);

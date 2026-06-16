@@ -17,12 +17,14 @@ public class UserInternalController {
 
     @GetMapping("/list")
     public R<PageResp<UserListResp>> list(PageReq req,
+                                           @RequestParam(required = false) String keyword,
+                                           @RequestParam(required = false) Integer roleFilter,
+                                           @RequestParam(required = false) Integer status,
                                            @RequestAttribute(value = "role", required = false) Integer role) {
-        // Only admin can list users (role=1) or internal Feign call (role=null)
         if (role != null && role != 1) {
             return R.fail(40015, "无权访问");
         }
-        return R.ok(userService.listUsers(req));
+        return R.ok(userService.listUsers(req, keyword, roleFilter, status));
     }
 
     @PutMapping("/{id}/status")

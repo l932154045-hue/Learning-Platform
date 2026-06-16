@@ -20,7 +20,7 @@ public interface OrderService {
     Long getCourseId(Long orderId);
     BigDecimal getTotalAmount(Long orderId);
     OrderSummaryVO getOrderSummary(Long orderId);
-    PageResp<OrderListVO> listAllOrders(PageReq req);
+    PageResp<OrderListVO> listAllOrders(PageReq req, String keyword, Integer status);
     Long getOrderCount();
     BigDecimal getTotalRevenue();
 }

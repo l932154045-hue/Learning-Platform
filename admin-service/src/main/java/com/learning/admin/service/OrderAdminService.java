@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 public interface OrderAdminService {
-    PageResp<Map<String, Object>> listOrders(PageReq req, Integer role);
+    PageResp<Map<String, Object>> listOrders(PageReq req, String keyword, Integer status, Integer role);
     void updateOrderStatus(Long orderId, Integer status, Integer role);
     Long getOrderCount(Integer role);
     BigDecimal getTotalRevenue(Integer role);

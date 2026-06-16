@@ -21,8 +21,11 @@ public class CourseAdminController {
 
     @GetMapping("/list")
     public R<PageResp<Map<String, Object>>> list(PageReq req,
+                                                  @RequestParam(required = false) String keyword,
+                                                  @RequestParam(required = false) String teacherName,
+                                                  @RequestParam(required = false) Integer status,
                                                   @RequestAttribute("role") Integer role) {
-        return R.ok(courseAdminService.listCourses(req, role));
+        return R.ok(courseAdminService.listCourses(req, keyword, teacherName, status, role));
     }
 
     @PostMapping

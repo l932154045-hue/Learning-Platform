@@ -16,7 +16,10 @@ public interface CourseServiceClient {
 
     // Admin course list (all statuses)
     @GetMapping("/internal/list-all")
-    R<PageResp<Map<String, Object>>> listAllCourses(@SpringQueryMap PageReq req);
+    R<PageResp<Map<String, Object>>> listAllCourses(@SpringQueryMap PageReq req,
+                                                     @RequestParam(required = false) String keyword,
+                                                     @RequestParam(required = false) String teacherName,
+                                                     @RequestParam(required = false) Integer status);
 
     // Course CRUD (internal endpoints)
     @PostMapping("/internal")

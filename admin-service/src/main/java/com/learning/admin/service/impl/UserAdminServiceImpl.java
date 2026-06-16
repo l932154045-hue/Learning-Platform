@@ -32,9 +32,9 @@ public class UserAdminServiceImpl implements UserAdminService {
     }
 
     @Override
-    public PageResp<Map<String, Object>> listUsers(PageReq req, Integer role) {
-        authService.checkAdmin(role);
-        R<PageResp<Map<String, Object>>> result = userServiceClient.listUsers(req);
+    public PageResp<Map<String, Object>> listUsers(PageReq req, String keyword, Integer role, Integer status, Integer adminRole) {
+        authService.checkAdmin(adminRole);
+        R<PageResp<Map<String, Object>>> result = userServiceClient.listUsers(req, keyword, role, status);
         if (result == null || result.getCode() != 200) {
             throw new BizException(ResultCode.REMOTE_CALL_ERROR);
         }

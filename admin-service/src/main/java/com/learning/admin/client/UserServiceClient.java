@@ -13,7 +13,10 @@ import java.util.Map;
 public interface UserServiceClient {
 
     @GetMapping("/internal/list")
-    R<PageResp<Map<String, Object>>> listUsers(@SpringQueryMap PageReq req);
+    R<PageResp<Map<String, Object>>> listUsers(@SpringQueryMap PageReq req,
+                                                @RequestParam(required = false) String keyword,
+                                                @RequestParam(required = false) Integer roleFilter,
+                                                @RequestParam(required = false) Integer status);
 
     @PutMapping("/internal/{id}/status")
     R<Void> updateUserStatus(@PathVariable("id") Long id, @RequestParam("status") Integer status);
