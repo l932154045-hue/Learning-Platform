@@ -53,11 +53,9 @@ const totalPages = computed(() => Math.ceil(props.total / props.pageSize) || 1)
         :current-page="pageNum"
         :page-size="pageSize"
         :total="total"
-        :page-sizes="[8, 16, 24]"
-        layout="total, sizes, prev, pager, next"
+        layout="total, prev, pager, next, jumper"
         background
         @current-change="(p: number) => emit('page-change', p)"
-        @update:page-size="(s: number) => emit('page-change', 1)"
       />
     </div>
   </div>
