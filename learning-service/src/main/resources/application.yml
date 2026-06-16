@@ -23,6 +23,11 @@ spring:
       simple:
         acknowledge-mode: manual
   cloud:
+    openfeign:
+      client:
+        config:
+          course-service:
+            url: http://localhost:8082
     nacos:
       discovery:
         enabled: false

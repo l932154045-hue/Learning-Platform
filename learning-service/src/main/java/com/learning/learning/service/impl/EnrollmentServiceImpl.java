@@ -1,8 +1,11 @@
 package com.learning.learning.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.learning.common.core.dto.CourseFeignResp;
 import com.learning.common.core.exception.BizException;
+import com.learning.common.core.result.R;
 import com.learning.common.core.result.ResultCode;
+import com.learning.learning.client.CourseClient;
 import com.learning.learning.dto.resp.MyCourseVO;
 import com.learning.learning.entity.Enrollment;
 import com.learning.learning.entity.VideoProgress;
@@ -25,6 +28,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     private final EnrollmentMapper enrollmentMapper;
     private final VideoProgressMapper videoProgressMapper;
+    private final CourseClient courseClient;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -58,8 +62,26 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             MyCourseVO vo = new MyCourseVO();
             vo.setEnrollmentId(e.getId());
             vo.setCourseId(e.getCourseId());
-            vo.setCourseTitle("课程-" + e.getCourseId());
-            vo.setTeacherName("讲师");
+
+            // Fetch real course info from course-service
+            try {
+                R<CourseFeignResp> result = courseClient.getCourseDetail(e.getCourseId());
+                if (result != null && result.getCode() == 200 && result.getData() != null) {
+                    CourseFeignResp course = result.getData();
+                    vo.setCourseTitle(course.getTitle());
+                    vo.setCourseCover(course.getCoverUrl());
+                    vo.setTeacherName(course.getTeacherName());
+                    vo.setPrice(course.getPrice());
+                } else {
+                    vo.setCourseTitle("课程-" + e.getCourseId());
+                    vo.setTeacherName("讲师");
+                }
+            } catch (Exception ex) {
+                log.error("获取课程信息失败: courseId={}", e.getCourseId(), ex);
+                vo.setCourseTitle("课程-" + e.getCourseId());
+                vo.setTeacherName("讲师");
+            }
+
             vo.setEnrolledAt(e.getEnrolledAt());
             vo.setLastLearnedAt(e.getLastLearnedAt());
 
