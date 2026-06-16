@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { adminOrderApi } from '@/api/modules/admin-order'
 import { getOrderStatusTag } from '@/utils/order'
 import type { OrderListItem } from '@shared/types'
 
+const router = useRouter()
 const orders = ref<OrderListItem[]>([])
 const loading = ref(false)
 const pageNum = ref(1)
@@ -39,6 +41,7 @@ async function handleCancel(row: OrderListItem) {
 
 <template>
   <div class="page">
+    <el-button text @click="router.push('/admin')">← 返回仪表盘</el-button>
     <div class="page-head">
       <h1>订单管理</h1>
     </div>

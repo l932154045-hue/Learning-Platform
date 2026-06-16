@@ -49,7 +49,7 @@ async function submit() {
   <div class="review-page">
     <AppHeader />
     <div class="container page-section">
-      <el-button text @click="router.back()">← 返回</el-button>
+      <el-button text @click="router.push(`/course/${courseId}`)">← 返回课程详情</el-button>
       <div v-if="loading" class="mt"><el-skeleton :rows="4" animated /></div>
       <template v-else-if="course">
         <div class="review-card">

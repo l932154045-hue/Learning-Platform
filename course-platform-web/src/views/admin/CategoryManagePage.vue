@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { adminCourseApi } from '@/api/modules/admin-course'
 import { adminCategoryApi } from '@/api/modules/admin-category'
 import type { CourseCategoryVO } from '@shared/types'
 
+const router = useRouter()
 const categories = ref<CourseCategoryVO[]>([])
 const loading = ref(false)
 const dialogVisible = ref(false)
@@ -66,6 +68,7 @@ async function handleDelete(id: number) {
 
 <template>
   <div class="page">
+    <el-button text @click="router.push('/admin')">← 返回仪表盘</el-button>
     <div class="page-head">
       <h1>分类管理</h1>
       <el-button type="primary" @click="openAdd(0)">添加顶级分类</el-button>

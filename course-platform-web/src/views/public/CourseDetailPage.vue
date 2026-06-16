@@ -78,6 +78,9 @@ async function buyNow() {
       <el-skeleton :rows="12" animated />
     </div>
     <template v-else-if="course">
+      <div class="container page-section">
+        <el-button text @click="router.push('/courses')">← 返回课程列表</el-button>
+      </div>
       <div class="detail-hero">
         <div class="container hero-grid">
           <div class="hero-cover">

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { adminUserApi } from '@/api/modules/admin-user'
 import type { UserListItem } from '@shared/types'
 
+const router = useRouter()
 const users = ref<UserListItem[]>([])
 const loading = ref(false)
 
@@ -30,6 +32,7 @@ async function handleToggleStatus(user: UserListItem) {
 
 <template>
   <div class="page">
+    <el-button text @click="router.push('/admin')">← 返回仪表盘</el-button>
     <div class="page-head">
       <h1>用户管理</h1>
     </div>
