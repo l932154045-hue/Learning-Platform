@@ -22,7 +22,7 @@ public class CategoryAdminController {
     }
 
     @PutMapping("/{id}")
-    public R<Void> update(@PathVariable Long id,
+    public R<Void> update(@PathVariable("id") Long id,
                            @RequestParam String name,
                            @RequestParam Integer sortOrder,
                            @RequestAttribute("role") Integer role) {
@@ -31,7 +31,7 @@ public class CategoryAdminController {
     }
 
     @DeleteMapping("/{id}")
-    public R<Void> delete(@PathVariable Long id,
+    public R<Void> delete(@PathVariable("id") Long id,
                            @RequestAttribute("role") Integer role) {
         categoryAdminService.deleteCategory(id, role);
         return R.ok();

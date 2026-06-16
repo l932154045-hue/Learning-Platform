@@ -48,6 +48,8 @@ public class UserServiceImpl implements UserService {
         user.setNickname(req.getUsername());
         user.setRole(0);
         user.setStatus(1);
+        user.setCreatedAt(java.time.LocalDateTime.now());
+        user.setUpdatedAt(java.time.LocalDateTime.now());
         userMapper.insert(user);
         log.info("用户注册成功: userId={}", user.getId());
     }

@@ -31,7 +31,7 @@ public class CourseController {
     }
 
     @GetMapping("/detail/{id}")
-    public R<CourseDetailVO> detail(@PathVariable Long id) {
+    public R<CourseDetailVO> detail(@PathVariable("id") Long id) {
         return R.ok(courseService.getCourseDetail(id));
     }
 

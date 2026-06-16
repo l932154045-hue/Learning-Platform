@@ -41,6 +41,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         enrollment.setUserId(userId);
         enrollment.setCourseId(courseId);
         enrollment.setStatus(1);
+        enrollment.setEnrolledAt(LocalDateTime.now());
+        enrollment.setLastLearnedAt(LocalDateTime.now());
         enrollmentMapper.insert(enrollment);
         log.info("用户选课成功: userId={}, courseId={}", userId, courseId);
     }

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.learning.cart.cache.CartCacheService;
 import com.learning.cart.client.CourseClient;
 import com.learning.cart.dto.resp.CartItemVO;
-import com.learning.cart.dto.resp.CourseFeignResp;
+import com.learning.common.core.dto.CourseFeignResp;
 import com.learning.cart.entity.Cart;
 import com.learning.cart.mapper.CartMapper;
 import com.learning.cart.service.CartService;
@@ -33,6 +33,8 @@ public class CartServiceImpl implements CartService {
         Cart cart = new Cart();
         cart.setUserId(userId);
         cart.setCourseId(courseId);
+        cart.setCreatedAt(java.time.LocalDateTime.now());
+        cart.setUpdatedAt(java.time.LocalDateTime.now());
         try {
             cartMapper.insert(cart);
         } catch (DuplicateKeyException e) {

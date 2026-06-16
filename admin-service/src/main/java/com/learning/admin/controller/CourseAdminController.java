@@ -23,7 +23,7 @@ public class CourseAdminController {
     }
 
     @PutMapping("/{id}")
-    public R<Void> update(@PathVariable Long id,
+    public R<Void> update(@PathVariable("id") Long id,
                            @Valid @RequestBody CourseSaveReq req,
                            @RequestAttribute("role") Integer role) {
         courseAdminService.updateCourse(id, req, role);
@@ -31,14 +31,14 @@ public class CourseAdminController {
     }
 
     @DeleteMapping("/{id}")
-    public R<Void> delete(@PathVariable Long id,
+    public R<Void> delete(@PathVariable("id") Long id,
                            @RequestAttribute("role") Integer role) {
         courseAdminService.deleteCourse(id, role);
         return R.ok();
     }
 
     @PutMapping("/{id}/status")
-    public R<Void> updateStatus(@PathVariable Long id,
+    public R<Void> updateStatus(@PathVariable("id") Long id,
                                  @RequestParam Integer status,
                                  @RequestAttribute("role") Integer role) {
         courseAdminService.updateStatus(id, status, role);
@@ -53,7 +53,7 @@ public class CourseAdminController {
     }
 
     @PutMapping("/video/{id}")
-    public R<Void> updateVideo(@PathVariable Long id,
+    public R<Void> updateVideo(@PathVariable("id") Long id,
                                 @Valid @RequestBody VideoSaveReq req,
                                 @RequestAttribute("role") Integer role) {
         courseAdminService.updateVideo(id, req, role);
@@ -61,7 +61,7 @@ public class CourseAdminController {
     }
 
     @DeleteMapping("/video/{id}")
-    public R<Void> deleteVideo(@PathVariable Long id,
+    public R<Void> deleteVideo(@PathVariable("id") Long id,
                                 @RequestAttribute("role") Integer role) {
         courseAdminService.deleteVideo(id, role);
         return R.ok();

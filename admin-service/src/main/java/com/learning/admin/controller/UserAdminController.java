@@ -14,7 +14,7 @@ public class UserAdminController {
     private final UserAdminService userAdminService;
 
     @PutMapping("/{id}/status")
-    public R<Void> updateStatus(@PathVariable Long id,
+    public R<Void> updateStatus(@PathVariable("id") Long id,
                                  @RequestBody UserStatusReq req,
                                  @RequestAttribute("role") Integer role) {
         userAdminService.updateUserStatus(id, req.getStatus(), role);

@@ -31,7 +31,7 @@ public class CartController {
 
     @DeleteMapping("/remove/{courseId}")
     public R<Void> remove(@RequestAttribute("userId") Long userId,
-                           @PathVariable Long courseId) {
+                           @PathVariable("courseId") Long courseId) {
         cartService.remove(userId, courseId);
         return R.ok();
     }

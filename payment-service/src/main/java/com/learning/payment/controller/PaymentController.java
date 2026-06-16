@@ -15,12 +15,12 @@ public class PaymentController {
 
     @PostMapping("/pay/{orderId}")
     public R<PayResultVO> pay(@RequestAttribute("userId") Long userId,
-                               @PathVariable Long orderId) {
+                               @PathVariable("orderId") Long orderId) {
         return R.ok(paymentService.pay(userId, orderId));
     }
 
     @GetMapping("/result/{orderId}")
-    public R<PayResultVO> result(@PathVariable Long orderId,
+    public R<PayResultVO> result(@PathVariable("orderId") Long orderId,
                                   @RequestAttribute("userId") Long userId) {
         return R.ok(paymentService.queryResult(orderId, userId));
     }

@@ -19,7 +19,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/review/{courseId}")
-    public R<ReviewVO> getMyReview(@PathVariable Long courseId, HttpServletRequest request) {
+    public R<ReviewVO> getMyReview(@PathVariable("courseId") Long courseId, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         return R.ok(reviewService.getMyReview(userId, courseId));
     }
@@ -32,7 +32,7 @@ public class ReviewController {
     }
 
     @GetMapping("/course/{id}/reviews")
-    public R<List<ReviewVO>> getCourseReviews(@PathVariable Long id) {
+    public R<List<ReviewVO>> getCourseReviews(@PathVariable("id") Long id) {
         return R.ok(reviewService.getCourseReviews(id));
     }
 }

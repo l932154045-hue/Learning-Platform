@@ -1,7 +1,7 @@
-package com.learning.cart.client;
+package com.learning.order.client;
 
-import com.learning.common.core.dto.CourseFeignResp;
 import com.learning.common.core.result.R;
+import com.learning.common.core.dto.CourseFeignResp;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

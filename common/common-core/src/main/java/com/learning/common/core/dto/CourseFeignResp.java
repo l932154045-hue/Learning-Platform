@@ -1,4 +1,4 @@
-package com.learning.cart.dto.resp;
+package com.learning.common.core.dto;
 
 import lombok.Data;
 

@@ -5,6 +5,7 @@ import com.learning.common.core.exception.BizException;
 import com.learning.common.core.result.R;
 import com.learning.common.core.result.ResultCode;
 import com.learning.payment.client.OrderClient;
+import com.learning.payment.dto.resp.OrderSummaryVO;
 import com.learning.payment.dto.resp.PayResultVO;
 import com.learning.payment.entity.PaymentRecord;
 import com.learning.payment.enums.PayStatusEnum;
@@ -31,7 +32,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     private static final String PAY_LOCK_KEY = "pay:lock:";
     private static final long PAY_LOCK_TTL = 60;
-    private static final BigDecimal DEFAULT_AMOUNT = new BigDecimal("99.00");
 
     private final PaymentRecordMapper paymentRecordMapper;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -41,14 +41,33 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PayResultVO pay(Long userId, Long orderId) {
-        // 1. Verify order ownership
-        R<Long> ownerResult = orderClient.getOwnerUserId(orderId);
-        if (ownerResult == null || ownerResult.getData() == null
-                || !ownerResult.getData().equals(userId)) {
+        // 1. Fetch order summary (owner + amount + courseId + orderNo in one call)
+        OrderSummaryVO orderSummary;
+        try {
+            R<OrderSummaryVO> result = orderClient.getOrderSummary(orderId);
+            if (result == null || result.getData() == null) {
+                throw new BizException(ResultCode.ORDER_NOT_FOUND);
+            }
+            orderSummary = result.getData();
+        } catch (BizException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("获取订单摘要失败: orderId={}", orderId, e);
+            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
+        }
+
+        // 2. Verify order ownership
+        if (!orderSummary.getUserId().equals(userId)) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
 
-        // 2. Idempotent check: check if already paid
+        // 3. Validate courseId
+        if (orderSummary.getCourseId() == null) {
+            log.error("订单缺少课程ID: orderId={}", orderId);
+            throw new BizException(ResultCode.REMOTE_CALL_ERROR);
+        }
+
+        // 4. Idempotent check: check if already paid
         PaymentRecord existRecord = paymentRecordMapper.selectOne(
                 new LambdaQueryWrapper<PaymentRecord>()
                         .eq(PaymentRecord::getOrderId, orderId)
@@ -58,7 +77,7 @@ public class PaymentServiceImpl implements PaymentService {
             return buildPayResultVO(existRecord);
         }
 
-        // 3. Redis distributed lock to prevent concurrent payment
+        // 5. Redis distributed lock to prevent concurrent payment
         String lockKey = PAY_LOCK_KEY + orderId;
         Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "1", PAY_LOCK_TTL,
                 TimeUnit.SECONDS);
@@ -67,26 +86,29 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         try {
-            // 4. Insert payment record with PENDING status
+            // 6. Insert payment record with PENDING status
+            BigDecimal orderAmount = orderSummary.getTotalAmount() != null
+                    ? orderSummary.getTotalAmount() : BigDecimal.ZERO;
             String paymentNo = generatePaymentNo();
             PaymentRecord record = new PaymentRecord();
             record.setPaymentNo(paymentNo);
             record.setOrderId(orderId);
-            record.setOrderNo("ORD" + orderId);
+            record.setOrderNo(orderSummary.getOrderNo());
             record.setUserId(userId);
-            record.setAmount(DEFAULT_AMOUNT);
+            record.setAmount(orderAmount);
             record.setPayMethod("WECHAT");
             record.setStatus(PayStatusEnum.PENDING.getCode());
+            record.setCreatedAt(LocalDateTime.now());
             paymentRecordMapper.insert(record);
 
-            // 5. Simulate payment success
+            // 7. Simulate payment success
             record.setStatus(PayStatusEnum.SUCCESS.getCode());
             record.setPaidAt(LocalDateTime.now());
             paymentRecordMapper.updateById(record);
 
-            log.info("模拟支付成功: paymentNo={}, orderId={}", paymentNo, orderId);
+            log.info("模拟支付成功: paymentNo={}, orderId={}, amount={}", paymentNo, orderId, orderAmount);
 
-            // 6. Feign call order-service to update order status
+            // 8. Feign call order-service to update order status
             try {
                 orderClient.updateStatus(orderId, 1);
                 log.info("订单状态更新成功: orderId={}", orderId);
@@ -95,12 +117,13 @@ public class PaymentServiceImpl implements PaymentService {
                 throw new BizException(ResultCode.REMOTE_CALL_ERROR);
             }
 
-            // 7. Send OrderPaidMessage to MQ
+            // 9. Send OrderPaidMessage to MQ
             OrderPaidMessage message = new OrderPaidMessage();
             message.setOrderId(orderId);
-            message.setOrderNo(record.getOrderNo());
+            message.setOrderNo(orderSummary.getOrderNo());
             message.setUserId(userId);
-            message.setAmount(DEFAULT_AMOUNT);
+            message.setCourseId(orderSummary.getCourseId());
+            message.setAmount(orderAmount);
             paymentEventProducer.sendOrderPaid(message);
 
             return buildPayResultVO(record);

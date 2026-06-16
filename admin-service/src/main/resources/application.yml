@@ -5,10 +5,10 @@ spring:
   application:
     name: admin-service
   rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
+    host: ${RABBITMQ_HOST:192.168.100.128}
     port: 5672
-    username: ${RABBITMQ_USER:guest}
-    password: ${RABBITMQ_PWD:guest}
+    username: ${RABBITMQ_USER:root}
+    password: ${RABBITMQ_PWD:040615}
     publisher-confirm-type: correlated
     publisher-returns: true
   cloud:

@@ -5,15 +5,15 @@ spring:
   application:
     name: course-service
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/learning_course?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8mb4
+    url: jdbc:mysql://${MYSQL_HOST:192.168.100.128}:3306/learning_course?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8
     username: ${MYSQL_USER:root}
-    password: ${MYSQL_PWD:root}
+    password: ${MYSQL_PWD:040615}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
+      host: ${REDIS_HOST:192.168.100.128}
       port: 6379
-      password: ${REDIS_PWD:}
+      password: ${REDIS_PWD:040615}
   cloud:
     nacos:
       discovery:

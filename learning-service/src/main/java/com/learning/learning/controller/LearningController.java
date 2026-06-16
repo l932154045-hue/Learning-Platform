@@ -28,7 +28,7 @@ public class LearningController {
     }
 
     @GetMapping("/progress/{courseId}")
-    public R<List<ProgressVO>> getProgress(@PathVariable Long courseId, HttpServletRequest request) {
+    public R<List<ProgressVO>> getProgress(@PathVariable("courseId") Long courseId, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         return R.ok(progressService.getProgress(userId, courseId));
     }
