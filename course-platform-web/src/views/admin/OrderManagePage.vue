@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { adminOrderApi } from '@/api/modules/admin-order'
+import { getOrderStatusTag } from '@/utils/order'
 import type { OrderListItem } from '@shared/types'
 
 const orders = ref<OrderListItem[]>([])
@@ -34,16 +35,6 @@ async function handleCancel(row: OrderListItem) {
     fetchOrders()
   } catch { /* handled */ }
 }
-
-function getStatusTag(status: number) {
-  const map: Record<number, { type: string; text: string }> = {
-    0: { type: 'warning', text: '待支付' },
-    1: { type: 'success', text: '已支付' },
-    2: { type: 'info', text: '已取消' },
-    3: { type: 'danger', text: '已退款' },
-  }
-  return map[status] || { type: 'info', text: '未知' }
-}
 </script>
 
 <template>
@@ -61,8 +52,8 @@ function getStatusTag(status: number) {
       </el-table-column>
       <el-table-column label="状态" width="90">
         <template #default="{ row }">
-          <el-tag :type="getStatusTag((row as OrderListItem).status).type" size="small">
-            {{ getStatusTag((row as OrderListItem).status).text }}
+          <el-tag :type="getOrderStatusTag((row as OrderListItem).status).type" size="small">
+            {{ getOrderStatusTag((row as OrderListItem).status).text }}
           </el-tag>
         </template>
       </el-table-column>

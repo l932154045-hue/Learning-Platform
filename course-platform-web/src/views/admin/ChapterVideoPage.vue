@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { adminCourseApi } from '@/api/modules/admin-course'
 import { courseApi } from '@/api/modules/course'
-import type { CourseDetailVO, VideoSaveReq } from '@shared/types'
+import type { ChapterVideoVO, CourseDetailVO, VideoSaveReq } from '@shared/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -36,7 +36,7 @@ function openAdd() {
   dialogVisible.value = true
 }
 
-function openEdit(video: any) {
+function openEdit(video: ChapterVideoVO) {
   dialogTitle.value = '编辑视频'
   editingVideoId.value = video.id
   Object.assign(form, {

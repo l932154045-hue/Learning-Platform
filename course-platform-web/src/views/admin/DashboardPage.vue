@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { adminDashboardApi } from '@/api/modules/admin-dashboard'
+import { getOrderStatusTag } from '@/utils/order'
 import type { DashboardStats, OrderListItem } from '@shared/types'
 
 const stats = ref<DashboardStats>({
@@ -24,19 +25,9 @@ const statCards = [
 ]
 
 function getCardValue(key: string): string {
-  const val = (stats.value as any)[key]
+  const val = (stats.value as unknown as Record<string, number | undefined>)[key]
   if (key === 'totalRevenue') return `¥${(val || 0).toFixed(2)}`
   return String(val ?? 0)
-}
-
-function getOrderStatusTag(status: number) {
-  const map: Record<number, { type: string; text: string }> = {
-    0: { type: 'warning', text: '待支付' },
-    1: { type: 'success', text: '已支付' },
-    2: { type: 'info', text: '已取消' },
-    3: { type: 'danger', text: '已退款' },
-  }
-  return map[status] || { type: 'info', text: '未知' }
 }
 </script>
 

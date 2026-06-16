@@ -3,6 +3,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { adminCourseApi } from '@/api/modules/admin-course'
+import { courseApi } from '@/api/modules/course'
 import type { CourseListItemVO, CourseCategoryVO, CourseSaveReq } from '@shared/types'
 
 const router = useRouter()
@@ -54,11 +55,21 @@ function openCreate() {
   dialogVisible.value = true
 }
 
-function openEdit(row: CourseListItemVO) {
+async function openEdit(row: CourseListItemVO) {
   dialogTitle.value = '编辑课程'
   editingId.value = row.id
-  Object.assign(form, { title: row.title, description: '', coverUrl: row.coverUrl || '', categoryId: row.categoryId ?? 0, teacherName: row.teacherName || '', price: row.price })
+  Object.assign(form, {
+    title: row.title, description: '', coverUrl: row.coverUrl || '',
+    categoryId: row.categoryId ?? 0, teacherName: row.teacherName || '', price: row.price,
+  })
   dialogVisible.value = true
+  // Fetch full detail to populate description (not available in list VO)
+  try {
+    const res = await courseApi.getDetail(row.id)
+    if (res.data.data?.description) {
+      form.description = res.data.data.description
+    }
+  } catch { /* keep empty description as fallback */ }
 }
 
 async function handleSave() {
