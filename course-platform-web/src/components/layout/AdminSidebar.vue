@@ -49,7 +49,7 @@ function handleLogout() { auth.logout(); router.push('/') }
 </template>
 
 <style scoped>
-.sidebar { display: flex; flex-direction: column; height: 100vh; }
+.sidebar { display: flex; flex-direction: column; min-height: 100vh; }
 .sidebar-logo {
   display: flex; align-items: center; gap: var(--space-sm);
   padding: var(--space-lg); font-size: var(--font-size-lg); font-weight: 700;
