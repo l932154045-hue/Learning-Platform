@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import AppHeader from '@/components/layout/AppHeader.vue'
@@ -9,6 +9,7 @@ import { courseApi } from '@/api/modules/course'
 import { cartApi } from '@/api/modules/cart'
 import { orderApi } from '@/api/modules/order'
 import { reviewApi } from '@/api/modules/review'
+import { learningApi } from '@/api/modules/learning'
 import { useAuthStore } from '@/stores/auth'
 import type { CourseDetailVO, ReviewVO } from '@shared/types'
 
@@ -20,17 +21,29 @@ const reviews = ref<ReviewVO[]>([])
 const reviewPage = ref(1)
 const reviewTotal = ref(0)
 const loading = ref(true)
+const purchasedCourseIds = ref<Set<number>>(new Set())
 
 const courseId = Number(route.params.id)
+const hasPurchased = computed(() => purchasedCourseIds.value.has(courseId))
 
 onMounted(async () => {
   try {
-    const [cRes, rRes] = await Promise.all([
+    const promises: Promise<any>[] = [
       courseApi.getDetail(courseId),
       reviewApi.getCourseReviews(courseId),
-    ])
-    course.value = cRes.data.data ?? null
-    const rData = rRes.data.data
+    ]
+    // 登录后查询已购课程
+    if (auth.isLoggedIn) {
+      promises.push(
+        learningApi.getMyCourses().then(res => {
+          const courses = res.data.data ?? []
+          purchasedCourseIds.value = new Set(courses.map(c => c.courseId))
+        }).catch(() => {})
+      )
+    }
+    const results = await Promise.all(promises)
+    course.value = results[0].data.data ?? null
+    const rData = results[1].data.data
     reviews.value = rData ?? []
     reviewTotal.value = rData?.length ?? 0
   } finally {
@@ -83,8 +96,9 @@ async function buyNow() {
               <span class="price">&yen;{{ course.price }}</span>
             </div>
             <div class="hero-actions">
-              <el-button type="primary" size="large" @click="buyNow">立即购买</el-button>
-              <el-button size="large" @click="addToCart">加入购物车</el-button>
+              <el-button v-if="hasPurchased" type="info" size="large" disabled>已购买</el-button>
+              <el-button v-else type="primary" size="large" @click="buyNow">立即购买</el-button>
+              <el-button v-if="!hasPurchased" size="large" @click="addToCart">加入购物车</el-button>
             </div>
           </div>
         </div>

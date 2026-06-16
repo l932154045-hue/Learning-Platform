@@ -52,6 +52,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Long createOrder(Long userId, CreateOrderReq req) {
+        // 检查是否已购买
+        int alreadyPaid = orderItemMapper.countPaidByUserAndCourse(userId, req.getCourseId());
+        if (alreadyPaid > 0) {
+            throw new BizException(ResultCode.COURSE_ALREADY_PURCHASED);
+        }
+
         // Fetch course info from course-service (outside transaction to avoid holding DB connection)
         CourseFeignResp course = fetchCourseInfo(req.getCourseId());
 
