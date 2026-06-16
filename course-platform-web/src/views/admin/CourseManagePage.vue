@@ -119,7 +119,6 @@ async function handleRefreshCache() {
 
 <template>
   <div class="page">
-    <el-button text @click="router.push('/admin')">← 返回仪表盘</el-button>
     <div class="page-head">
       <h1>课程管理</h1>
       <div class="page-head-actions">
