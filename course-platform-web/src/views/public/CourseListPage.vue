@@ -64,8 +64,10 @@ function onPageChange(page: number) { search(page) }
 function onKeywordChange() { search(1) }
 function onFilterChange() { search(1) }
 
+let keywordTimer: ReturnType<typeof setTimeout> | null = null
 watch(() => params.value.keyword, () => {
-  // debounce happens in search call explicitly on enter/blur
+  if (keywordTimer) clearTimeout(keywordTimer)
+  keywordTimer = setTimeout(() => search(1), 500)
 })
 </script>
 

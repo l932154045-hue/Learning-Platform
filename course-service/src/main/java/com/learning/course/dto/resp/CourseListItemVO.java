@@ -12,5 +12,7 @@ public class CourseListItemVO {
     private String teacherName;
     private BigDecimal price;
     private Integer saleCount;
+    private Long categoryId;
     private String categoryName;
+    private Integer status;
 }

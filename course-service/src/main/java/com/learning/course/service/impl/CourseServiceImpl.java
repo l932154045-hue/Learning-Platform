@@ -3,6 +3,7 @@ package com.learning.course.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.learning.common.core.exception.BizException;
+import com.learning.common.core.dto.CourseFeignResp;
 import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.ResultCode;
 import com.learning.course.cache.CourseCacheService;
@@ -47,9 +48,10 @@ public class CourseServiceImpl implements CourseService {
         // Resolve category IDs: if a category is selected, include its children
         List<Long> categoryIds = null;
         if (req.getCategoryId() != null) {
+            List<CourseCategory> allCategories = categoryMapper.selectList(null);
             categoryIds = new ArrayList<>();
             categoryIds.add(req.getCategoryId());
-            collectChildCategoryIds(req.getCategoryId(), categoryIds);
+            collectChildCategoryIds(allCategories, req.getCategoryId(), categoryIds);
         }
 
         Page<Course> page = new Page<>(req.getPageNum(), req.getPageSize());
@@ -132,13 +134,13 @@ public class CourseServiceImpl implements CourseService {
         return result;
     }
 
-    private void collectChildCategoryIds(Long parentId, List<Long> result) {
-        List<CourseCategory> children = categoryMapper.selectList(
-                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<CourseCategory>()
-                        .eq(CourseCategory::getParentId, parentId));
-        for (CourseCategory child : children) {
-            result.add(child.getId());
-            collectChildCategoryIds(child.getId(), result);
+    private void collectChildCategoryIds(List<CourseCategory> allCategories, Long parentId, List<Long> result) {
+        for (CourseCategory cat : allCategories) {
+            Long catParentId = cat.getParentId() == null ? 0L : cat.getParentId();
+            if (catParentId.equals(parentId)) {
+                result.add(cat.getId());
+                collectChildCategoryIds(allCategories, cat.getId(), result);
+            }
         }
     }
 
@@ -162,6 +164,7 @@ public class CourseServiceImpl implements CourseService {
                 BeanUtils.copyProperties(course, vo);
                 redisTemplate.opsForZSet().add(HOT_TOP10_KEY, vo, course.getSaleCount());
             }
+            redisTemplate.expire(HOT_TOP10_KEY, Duration.ofMinutes(30));
             // Re-fetch from Redis for consistent output
             hotSet = redisTemplate.opsForZSet().reverseRange(HOT_TOP10_KEY, 0, 9);
         }
@@ -176,5 +179,18 @@ public class CourseServiceImpl implements CourseService {
             }
         }
         return result;
+    }
+
+    @Override
+    public List<CourseFeignResp> getCourseBatch(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Course> courses = courseMapper.selectBatchIds(ids);
+        return courses.stream().map(course -> {
+            CourseFeignResp vo = new CourseFeignResp();
+            BeanUtils.copyProperties(course, vo);
+            return vo;
+        }).collect(Collectors.toList());
     }
 }

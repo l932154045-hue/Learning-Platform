@@ -57,7 +57,7 @@ function openCreate() {
 function openEdit(row: CourseListItemVO) {
   dialogTitle.value = '编辑课程'
   editingId.value = row.id
-  Object.assign(form, { title: row.title, description: '', coverUrl: row.coverUrl || '', categoryId: 0, teacherName: row.teacherName || '', price: row.price })
+  Object.assign(form, { title: row.title, description: '', coverUrl: row.coverUrl || '', categoryId: row.categoryId ?? 0, teacherName: row.teacherName || '', price: row.price })
   dialogVisible.value = true
 }
 
@@ -87,9 +87,9 @@ async function handleDelete(id: number) {
 }
 
 async function handleToggleStatus(row: CourseListItemVO) {
-  const newStatus = 0 // toggle (simplified)
+  const newStatus = row.status === 1 ? 0 : 1
   await adminCourseApi.updateStatus(row.id, newStatus)
-  ElMessage.success('状态已切换')
+  ElMessage.success(newStatus === 1 ? '已上架' : '已下架')
 }
 
 function goVideos(id: number) { router.push(`/course/${id}/videos`) }

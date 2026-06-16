@@ -1,5 +1,6 @@
 package com.learning.course.controller;
 
+import com.learning.common.core.dto.CourseFeignResp;
 import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
 import com.learning.course.dto.req.CourseSearchReq;
@@ -38,5 +39,10 @@ public class CourseController {
     @GetMapping("/hot")
     public R<List<CourseListItemVO>> hot() {
         return R.ok(courseService.getHotTop10());
+    }
+
+    @GetMapping("/batch")
+    public R<List<CourseFeignResp>> batch(@RequestParam("ids") List<Long> ids) {
+        return R.ok(courseService.getCourseBatch(ids));
     }
 }
