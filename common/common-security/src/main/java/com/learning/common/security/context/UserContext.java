@@ -8,6 +8,9 @@ import lombok.Getter;
 @Getter
 public class UserContext {
 
+    /** 管理员角色编码 */
+    public static final Integer ROLE_ADMIN = 1;
+
     private final Long userId;
     private final Integer role;
 
@@ -16,8 +19,8 @@ public class UserContext {
         this.role = role;
     }
 
-    /** 是否为管理员（role == 1） */
+    /** 是否为管理员 */
     public boolean isAdmin() {
-        return role != null && role == 1;
+        return role != null && role.equals(ROLE_ADMIN);
     }
 }
