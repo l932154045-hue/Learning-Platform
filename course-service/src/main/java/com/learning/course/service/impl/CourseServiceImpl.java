@@ -38,6 +38,7 @@ public class CourseServiceImpl implements CourseService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String CATEGORY_TREE_KEY = "course:category:tree";
+    private static final String CATEGORY_LIST_KEY = "course:category:list";
     private static final String HOT_TOP10_KEY = "course:hot:top10";
     private static final Set<String> ALLOWED_SORT = Set.of("price_asc", "price_desc", "newest", "saleCount_desc");
 
@@ -48,7 +49,7 @@ public class CourseServiceImpl implements CourseService {
         // Resolve category IDs: if a category is selected, include its children
         List<Long> categoryIds = null;
         if (req.getCategoryId() != null) {
-            List<CourseCategory> allCategories = categoryMapper.selectList(null);
+            List<CourseCategory> allCategories = getCachedCategoryList();
             categoryIds = new ArrayList<>();
             categoryIds.add(req.getCategoryId());
             collectChildCategoryIds(allCategories, req.getCategoryId(), categoryIds);
@@ -116,6 +117,17 @@ public class CourseServiceImpl implements CourseService {
         // Cache for 1 hour
         redisTemplate.opsForValue().set(CATEGORY_TREE_KEY, tree, Duration.ofHours(1));
         return tree;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<CourseCategory> getCachedCategoryList() {
+        Object cached = redisTemplate.opsForValue().get(CATEGORY_LIST_KEY);
+        if (cached != null) {
+            return (List<CourseCategory>) cached;
+        }
+        List<CourseCategory> allCategories = categoryMapper.selectList(null);
+        redisTemplate.opsForValue().set(CATEGORY_LIST_KEY, allCategories, Duration.ofHours(1));
+        return allCategories;
     }
 
     private List<CourseCategoryVO> buildCategoryTree(List<CourseCategory> allCategories, Long parentId) {

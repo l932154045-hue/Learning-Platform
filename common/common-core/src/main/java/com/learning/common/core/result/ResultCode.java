@@ -23,8 +23,13 @@ public enum ResultCode {
     REVIEW_EXISTS(40013, "评价已存在"),
     CART_DUPLICATE(40014, "课程已在购物车中"),
     FORBIDDEN(40015, "无权访问"),
+    VIDEO_NOT_FOUND(40016, "视频不存在"),
+    CATEGORY_NOT_FOUND(40017, "分类不存在"),
+    CATEGORY_HAS_CHILDREN(40018, "该分类下有子分类，无法删除"),
+    LAST_ADMIN_CANNOT_DISABLE(40019, "无法禁用最后一个管理员账号"),
     PASSWORD_TOO_SHORT(40020, "新密码不能少于6位"),
     PASSWORD_WRONG(40021, "旧密码不正确"),
+    PROGRESS_BLOCKED(40022, "进度上报被拦截，只能递增"),
 
     // 5xx
     SYSTEM_ERROR(50001, "系统内部错误"),

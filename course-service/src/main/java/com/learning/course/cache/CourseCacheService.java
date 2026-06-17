@@ -85,6 +85,7 @@ public class CourseCacheService {
     }
 
     private static final String CATEGORY_TREE_KEY = "course:category:tree";
+    private static final String CATEGORY_LIST_KEY = "course:category:list";
     private static final String HOT_TOP10_KEY = "course:hot:top10";
 
     public void evictAllCourseDetail() {
@@ -98,6 +99,7 @@ public class CourseCacheService {
 
     public void evictCategoryTree() {
         redisTemplate.delete(CATEGORY_TREE_KEY);
+        redisTemplate.delete(CATEGORY_LIST_KEY);
         log.info("已清除分类树缓存");
     }
 

@@ -129,7 +129,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void updateVideo(Long id, VideoSaveReq req) {
         ChapterVideo video = chapterVideoMapper.selectById(id);
         if (video == null) {
-            throw new BizException(40016, "视频不存在");
+            throw new BizException(ResultCode.VIDEO_NOT_FOUND);
         }
         BeanUtils.copyProperties(req, video, "id", "status");
         video.setId(id);
@@ -143,7 +143,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void deleteVideo(Long id) {
         ChapterVideo video = chapterVideoMapper.selectById(id);
         if (video == null) {
-            throw new BizException(40016, "视频不存在");
+            throw new BizException(ResultCode.VIDEO_NOT_FOUND);
         }
         chapterVideoMapper.deleteById(id);
         courseCacheService.evict(video.getCourseId());
@@ -170,7 +170,7 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void updateCategory(Long id, String name, Integer sortOrder) {
         CourseCategory category = categoryMapper.selectById(id);
         if (category == null) {
-            throw new BizException(40017, "分类不存在");
+            throw new BizException(ResultCode.CATEGORY_NOT_FOUND);
         }
         if (name != null) {
             category.setName(name);
@@ -188,14 +188,14 @@ public class CourseAdminServiceImpl implements CourseAdminService {
     public void deleteCategory(Long id) {
         CourseCategory category = categoryMapper.selectById(id);
         if (category == null) {
-            throw new BizException(40017, "分类不存在");
+            throw new BizException(ResultCode.CATEGORY_NOT_FOUND);
         }
         // Check if category has subcategories
         Long count = categoryMapper.selectCount(
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<CourseCategory>()
                         .eq(CourseCategory::getParentId, id));
         if (count != null && count > 0) {
-            throw new BizException(40018, "该分类下有子分类，无法删除");
+            throw new BizException(ResultCode.CATEGORY_HAS_CHILDREN);
         }
         categoryMapper.deleteById(id);
         courseCacheService.evictCategoryTree();
