@@ -38,7 +38,7 @@ online-course-platform/
 ├── admin-service/                  # 管理服务 :8087 — 纯代理层（无数据库），Feign 转发到下游
 ├── course-platform-web/            # 用户端前端（Vue 3）
 ├── shared/                         # 前端共享 TypeScript 类型定义
-├── docker/init/init.sql            # 数据库 DDL + 种子数据
+├── init.sql                        # 数据库 DDL + 种子数据
 └── docker-compose.yml              # MySQL + Redis + RabbitMQ 容器编排
 ```
 
