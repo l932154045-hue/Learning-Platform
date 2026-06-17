@@ -5,6 +5,8 @@ import com.learning.common.core.exception.BizException;
 import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
 import com.learning.common.core.result.ResultCode;
+import com.learning.common.security.annotation.CurrentUser;
+import com.learning.common.security.context.UserContext;
 import com.learning.course.cache.CourseCacheService;
 import com.learning.course.dto.req.CourseSearchReq;
 import com.learning.course.dto.resp.CourseCategoryVO;
@@ -51,9 +53,9 @@ public class CourseController {
     }
 
     @PostMapping("/cache/refresh")
-    public R<String> refreshCache(@RequestAttribute(value = "role", required = false) Integer role) {
+    public R<String> refreshCache(@CurrentUser UserContext userContext) {
         // 仅管理员可刷新缓存，Feign 内部调用时 role 为 null 放行
-        if (role != null && role != 1) {
+        if (!userContext.isAdmin()) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         courseCacheService.refreshAllCaches();

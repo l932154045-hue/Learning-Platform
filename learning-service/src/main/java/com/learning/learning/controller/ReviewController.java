@@ -1,10 +1,11 @@
 package com.learning.learning.controller;
 
 import com.learning.common.core.result.R;
+import com.learning.common.security.annotation.CurrentUser;
+import com.learning.common.security.context.UserContext;
 import com.learning.learning.dto.req.ReviewReq;
 import com.learning.learning.dto.resp.ReviewVO;
 import com.learning.learning.service.ReviewService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -19,14 +20,14 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/review/{courseId}")
-    public R<ReviewVO> getMyReview(@PathVariable("courseId") Long courseId, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public R<ReviewVO> getMyReview(@PathVariable("courseId") Long courseId, @CurrentUser UserContext userContext) {
+        Long userId = userContext.getUserId();
         return R.ok(reviewService.getMyReview(userId, courseId));
     }
 
     @PostMapping("/review")
-    public R<Void> submitReview(@Valid @RequestBody ReviewReq req, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public R<Void> submitReview(@Valid @RequestBody ReviewReq req, @CurrentUser UserContext userContext) {
+        Long userId = userContext.getUserId();
         reviewService.submit(userId, req);
         return R.ok();
     }

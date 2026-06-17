@@ -1,12 +1,13 @@
 package com.learning.learning.controller;
 
 import com.learning.common.core.result.R;
+import com.learning.common.security.annotation.CurrentUser;
+import com.learning.common.security.context.UserContext;
 import com.learning.learning.dto.req.ProgressReportReq;
 import com.learning.learning.dto.resp.MyCourseVO;
 import com.learning.learning.dto.resp.ProgressVO;
 import com.learning.learning.service.EnrollmentService;
 import com.learning.learning.service.ProgressService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -22,20 +23,20 @@ public class LearningController {
     private final ProgressService progressService;
 
     @GetMapping("/my-courses")
-    public R<List<MyCourseVO>> myCourses(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public R<List<MyCourseVO>> myCourses(@CurrentUser UserContext userContext) {
+        Long userId = userContext.getUserId();
         return R.ok(enrollmentService.myCourses(userId));
     }
 
     @GetMapping("/progress/{courseId}")
-    public R<List<ProgressVO>> getProgress(@PathVariable("courseId") Long courseId, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public R<List<ProgressVO>> getProgress(@PathVariable("courseId") Long courseId, @CurrentUser UserContext userContext) {
+        Long userId = userContext.getUserId();
         return R.ok(progressService.getProgress(userId, courseId));
     }
 
     @PutMapping("/progress/report")
-    public R<Void> reportProgress(@Valid @RequestBody ProgressReportReq req, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public R<Void> reportProgress(@Valid @RequestBody ProgressReportReq req, @CurrentUser UserContext userContext) {
+        Long userId = userContext.getUserId();
         progressService.report(userId, req);
         return R.ok();
     }

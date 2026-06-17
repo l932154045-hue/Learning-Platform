@@ -3,6 +3,8 @@ package com.learning.course.controller;
 import com.learning.common.core.exception.BizException;
 import com.learning.common.core.result.R;
 import com.learning.common.core.result.ResultCode;
+import com.learning.common.security.annotation.CurrentUser;
+import com.learning.common.security.context.UserContext;
 import com.learning.course.dto.req.CourseSaveReq;
 import com.learning.course.dto.req.VideoSaveReq;
 import com.learning.course.service.CourseAdminService;
@@ -21,8 +23,8 @@ public class CourseInternalController {
 
     @PostMapping
     public R<Long> createCourse(@Valid @RequestBody CourseSaveReq req,
-                                 @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+                                 @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         Long id = courseAdminService.createCourse(req);
         return R.ok(id);
     }
@@ -30,16 +32,16 @@ public class CourseInternalController {
     @PutMapping("/{id}")
     public R<Void> updateCourse(@PathVariable Long id,
                                  @Valid @RequestBody CourseSaveReq req,
-                                 @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+                                 @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         courseAdminService.updateCourse(id, req);
         return R.ok();
     }
 
     @DeleteMapping("/{id}")
     public R<Void> deleteCourse(@PathVariable Long id,
-                                 @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+                                 @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         courseAdminService.deleteCourse(id);
         return R.ok();
     }
@@ -47,8 +49,8 @@ public class CourseInternalController {
     @PutMapping("/{id}/status")
     public R<Void> updateStatus(@PathVariable Long id,
                                  @RequestParam Integer status,
-                                 @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+                                 @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         courseAdminService.updateCourseStatus(id, status);
         return R.ok();
     }
@@ -57,8 +59,8 @@ public class CourseInternalController {
 
     @PostMapping("/video")
     public R<Void> addVideo(@Valid @RequestBody VideoSaveReq req,
-                             @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+                             @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         courseAdminService.addVideo(req);
         return R.ok();
     }
@@ -66,16 +68,16 @@ public class CourseInternalController {
     @PutMapping("/video/{id}")
     public R<Void> updateVideo(@PathVariable Long id,
                                 @Valid @RequestBody VideoSaveReq req,
-                                @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+                                @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         courseAdminService.updateVideo(id, req);
         return R.ok();
     }
 
     @DeleteMapping("/video/{id}")
     public R<Void> deleteVideo(@PathVariable Long id,
-                                @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+                                @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         courseAdminService.deleteVideo(id);
         return R.ok();
     }
@@ -86,8 +88,8 @@ public class CourseInternalController {
     public R<Long> createCategory(@RequestParam String name,
                                    @RequestParam(defaultValue = "0") Long parentId,
                                    @RequestParam(defaultValue = "0") Integer sortOrder,
-                                   @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+                                   @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         Long id = courseAdminService.createCategory(name, parentId, sortOrder);
         return R.ok(id);
     }
@@ -96,16 +98,16 @@ public class CourseInternalController {
     public R<Void> updateCategory(@PathVariable Long id,
                                    @RequestParam String name,
                                    @RequestParam(defaultValue = "0") Integer sortOrder,
-                                   @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+                                   @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         courseAdminService.updateCategory(id, name, sortOrder);
         return R.ok();
     }
 
     @DeleteMapping("/category/{id}")
     public R<Void> deleteCategory(@PathVariable Long id,
-                                   @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+                                   @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         courseAdminService.deleteCategory(id);
         return R.ok();
     }
@@ -118,21 +120,21 @@ public class CourseInternalController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String teacherName,
             @RequestParam(required = false) Integer status,
-            @RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+            @CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         return R.ok(courseAdminService.listAllCourses(req, keyword, teacherName, status));
     }
 
     @GetMapping("/count")
-    public R<Long> getCourseCount(@RequestAttribute(value = "role", required = false) Integer role) {
-        checkAdmin(role);
+    public R<Long> getCourseCount(@CurrentUser UserContext userContext) {
+        checkAdmin(userContext);
         return R.ok(courseAdminService.getCourseCount());
     }
 
     // ===== Helper =====
 
-    private void checkAdmin(Integer role) {
-        if (role != null && role != 1) {
+    private void checkAdmin(UserContext userContext) {
+        if (!userContext.isAdmin()) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
     }
