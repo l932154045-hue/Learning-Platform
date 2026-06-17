@@ -18,7 +18,7 @@ mvn spring-boot:run -pl gateway-service
 mvn package -DskipTests -q
 ```
 
-项目需要 Java 17+、MySQL 8.0、Redis、RabbitMQ 3.x。每个服务有独立的 `application.yml`，数据库/中间件连接通过环境变量注入（有默认 localhost 值）。
+项目需要 Java 17+、MySQL 8.0、Redis、RabbitMQ 3.x。每个服务有独立的 `application.yml`，数据库/中间件连接通过环境变量注入（默认值见 README 配置表，凭据通过 `application-local.yml` 覆盖）。
 
 ## 项目架构
 
@@ -41,12 +41,12 @@ gateway (8080) ──→ user-service      (8081, learning_user)
 三层链路，不可绕过：
 
 1. **Gateway `AuthGlobalFilter`**（order=-100）— 校验 JWT → 解析 userId/role → 写入 `X-User-Id`/`X-User-Role` header 转发给下游
-2. **`UserInfoInterceptor`**（common-web）— 读取 header → `request.setAttribute("userId", ...)`
-3. **Controller** — `@RequestAttribute("userId")` / `@RequestAttribute("role")` 获取用户上下文
+2. **`UserInfoInterceptor`**（common-web）— 读取 header → `request.setAttribute("userId", ...)` / `request.setAttribute("role", ...)`
+3. **Controller** — `@CurrentUser UserContext userContext` 通过 `CurrentUserArgumentResolver`（common-security）自动注入，提供 `getUserId()`/`getRole()`/`isAdmin()`
 
 公开路径（跳过认证）：`/api/user/register`、`/api/user/login`、`/api/course/list`、`/api/course/detail`、`/api/course/category/tree`、`/api/course/hot`、`/api/learning/course`（startsWith 匹配）。
 
-管理员接口通过 `AdminAuthService.checkAdmin(role)` 校验 role==1。
+管理员接口通过 `userContext.isAdmin()` 校验（UserContext.ROLE_ADMIN == 1），admin-service 额外封装 `AdminAuthService.checkAdmin(role)`。
 
 ## 关键约定
 
@@ -62,13 +62,19 @@ gateway (8080) ──→ user-service      (8081, learning_user)
 ## 消息队列拓扑
 
 ```
-order.topic (TopicExchange)
+order.topic (order-service 声明)
 ├── order.created → order.created.course / order.created.notify / order.payment.delay
 └── order.paid   → order.paid.enrollment
 
-order.dlx (Dead Letter Exchange)
+order.dlx (Dead Letter Exchange, order-service 声明)
 └── order.timeout → order.timeout.cancel (30min TTL 延迟取消)
+
+course.topic (course-service + admin-service 双声明)
+└── course.updated → course.updated.cache (CacheRefreshConsumer 精确驱逐)
 ```
+
+**消费者**: `OrderTimeoutConsumer`(order) | `EnrollmentConsumer`(learning) | `CacheRefreshConsumer`(course)
+**生产者**: `OrderEventProducer`(order) | `PaymentEventProducer`(payment) | `AdminEventProducer`(admin)
 
 关键可靠性机制：Publisher Confirm + Return Callback（common-mq `RabbitCommonConfig`）| 消费者手动 ACK | 幂等消费 Redis SETNX | 分布式事务：`TransactionSynchronization.afterCommit()` 后发 MQ
 
@@ -79,15 +85,14 @@ order.dlx (Dead Letter Exchange)
                              ↑ 空值缓存(2min) 防止穿透
 ```
 
-热点课程用 Redis ZSet `course:hot:top10`；分类树 Redis 缓存 1h。admin-service 修改课程后发 `course.updated` MQ 通知清缓存（consumer 待实现）。
+热点课程用 Redis ZSet `course:hot:top10`；分类树 Redis 缓存 1h。admin-service 修改课程后发 `course.updated` MQ 通知，`CacheRefreshConsumer` 按 courseId 精确驱逐缓存，异常/未知事件兜底全量刷新。
 
 ## 已知局限
 
-- **零测试** — 所有模块均无 `src/test` 目录
-- admin-service 多数操作仅打日志，Feign 调用占位未实现
-- `@CurrentUser` 注解已定义但无参数解析器，全部用 `@RequestAttribute` 直取
-- `OrderPaidMessage` 在 3 个服务中各自复制定义，未抽取到 common-mq
-- `course.updated` MQ 消息已发送但 consumer 未实现（缓存刷新待完成）
+- **测试覆盖率** — 已补充 67 个核心链路单元测试（JUnit 5 + Mockito），仍有部分模块未覆盖
+- Nacos 已配置但 `enabled: false`，开发阶段走 localhost 直连
+- `order.created.course` / `order.created.notify` 队列已声明但无消费者（课程统计/通知占位）
+- admin-service 纯代理层，无审计日志/批量操作/操作历史
 
 <!-- superpowers-zh:begin (do not edit between these markers) -->
 # Superpowers-ZH 中文增强版
