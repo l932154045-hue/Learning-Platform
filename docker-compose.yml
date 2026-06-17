@@ -1,10 +1,12 @@
 services:
   mysql:
-    image: mysql:8.0
+    image: mysql:8
     container_name: learning-mysql
+    restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
+      TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: 040615
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -16,10 +18,13 @@ services:
       retries: 5
 
   redis:
-    image: redis:7-alpine
+    image: redis:7.4
     container_name: learning-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
+    environment:
+      TZ: Asia/Shanghai
     volumes:
       - redis-data:/data
     command: redis-server --requirepass 040615
@@ -32,6 +37,8 @@ services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: learning-rabbitmq
+    hostname: rabbitmq
+    restart: unless-stopped
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -49,12 +56,14 @@ services:
   nacos:
     image: nacos/nacos-server:v2.3.2
     container_name: learning-nacos
+    restart: unless-stopped
     ports:
       - "8848:8848"
       - "9848:9848"
+      - "9849:9849"
     environment:
       MODE: standalone
-      PREFER_HOST_MODE: hostname
+      TZ: Asia/Shanghai
     volumes:
       - nacos-data:/home/nacos/data
 

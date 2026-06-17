@@ -7,7 +7,7 @@ spring:
   profiles:
     active: local
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:192.168.100.128}:3306/learning_learning?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8
+    url: jdbc:mysql://${MYSQL_HOST:192.168.100.128}:3306/learning_learning?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PWD:040615}
     driver-class-name: com.mysql.cj.jdbc.Driver
