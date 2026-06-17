@@ -1,6 +1,7 @@
 package com.learning.user.controller;
 
 import com.learning.common.core.result.R;
+import com.learning.user.dto.req.ChangePasswordReq;
 import com.learning.user.dto.req.LoginReq;
 import com.learning.user.dto.req.RegisterReq;
 import com.learning.user.dto.resp.LoginResp;
@@ -37,6 +38,13 @@ public class UserController {
     public R<Void> updateInfo(@RequestAttribute("userId") Long userId,
                                @RequestBody UserInfoResp req) {
         userService.updateUserInfo(userId, req);
+        return R.ok();
+    }
+
+    @PutMapping("/password")
+    public R<Void> changePassword(@RequestAttribute("userId") Long userId,
+                                   @RequestBody ChangePasswordReq req) {
+        userService.changePassword(userId, req.getOldPassword(), req.getNewPassword());
         return R.ok();
     }
 }

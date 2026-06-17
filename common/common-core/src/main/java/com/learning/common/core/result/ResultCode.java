@@ -23,6 +23,8 @@ public enum ResultCode {
     REVIEW_EXISTS(40013, "评价已存在"),
     CART_DUPLICATE(40014, "课程已在购物车中"),
     FORBIDDEN(40015, "无权访问"),
+    PASSWORD_TOO_SHORT(40020, "新密码不能少于6位"),
+    PASSWORD_WRONG(40021, "旧密码不正确"),
 
     // 5xx
     SYSTEM_ERROR(50001, "系统内部错误"),

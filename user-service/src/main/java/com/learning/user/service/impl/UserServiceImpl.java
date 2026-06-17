@@ -103,6 +103,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public void changePassword(Long userId, String oldPassword, String newPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new BizException(ResultCode.PASSWORD_TOO_SHORT);
+        }
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BizException(ResultCode.LOGIN_FAIL);
+        }
+        if (!PASSWORD_ENCODER.matches(oldPassword, user.getPassword())) {
+            throw new BizException(ResultCode.PASSWORD_WRONG);
+        }
+        user.setPassword(PASSWORD_ENCODER.encode(newPassword));
+        userMapper.updateById(user);
+    }
+
+    @Override
     public PageResp<UserListResp> listUsers(PageReq req, String keyword, Integer role, Integer status) {
         LambdaQueryWrapper<User> qw = new LambdaQueryWrapper<User>()
                 .orderByDesc(User::getCreatedAt);

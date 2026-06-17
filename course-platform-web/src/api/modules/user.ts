@@ -7,4 +7,6 @@ export const userApi = {
   login: (data: LoginReq) => http.post<R<LoginResp>>('/api/user/login', data),
   getInfo: () => http.get<R<UserInfoResp>>('/api/user/info'),
   updateInfo: (data: UpdateUserReq) => http.put<R<null>>('/api/user/info', data),
+  changePassword: (oldPassword: string, newPassword: string) =>
+    http.put<R<null>>('/api/user/password', { oldPassword, newPassword }),
 }
