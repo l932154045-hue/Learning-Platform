@@ -89,7 +89,7 @@ docker compose up -d
 
 启动 MySQL 8.0（:3306，root/040615）、Redis 7（:6379，密码 040615）、RabbitMQ 3.x（:5672 + 管理面板 :15672，root/040615），并自动创建 6 个独立数据库。
 
-> **注意**：各服务 `application.yml` 中数据库/中间件密码默认值为空，需通过环境变量注入或创建 `application-local.yml`（已 gitignore）覆盖。docker-compose 的凭据与本地配置一致可无缝使用。
+> 所有中间件凭据默认值与 docker-compose 一致，开发环境无需额外配置即可直连。
 
 ### 2. 编译
 
@@ -316,12 +316,12 @@ course-service 实现两级缓存，cart-service 使用单级 Redis 缓存：
 |----------|--------|------|
 | `MYSQL_HOST` | `192.168.100.128` | MySQL 地址 |
 | `MYSQL_USER` | `root` | MySQL 用户名 |
-| `MYSQL_PWD` | (空) | MySQL 密码 |
+| `MYSQL_PWD` | `040615` | MySQL 密码 |
 | `REDIS_HOST` | `192.168.100.128` | Redis 地址 |
-| `REDIS_PWD` | (空) | Redis 密码 |
+| `REDIS_PWD` | `040615` | Redis 密码 |
 | `RABBITMQ_HOST` | `192.168.100.128` | RabbitMQ 地址 |
 | `RABBITMQ_USER` | `root` | RabbitMQ 用户名 |
-| `RABBITMQ_PWD` | (空) | RabbitMQ 密码 |
+| `RABBITMQ_PWD` | `040615` | RabbitMQ 密码 |
 | `NACOS_SERVER` | `192.168.100.128:8848` | Nacos 地址 |
 
 凭据通过 `application-local.yml`（已 gitignore）覆盖，与 docker-compose.yml 中的 `040615` 保持一致即可直连。
