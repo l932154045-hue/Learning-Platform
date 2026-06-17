@@ -10,17 +10,28 @@ const loading = ref(false)
 const pageNum = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
+const keyword = ref('')
+const statusFilter = ref<number | undefined>(undefined)
 
 onMounted(() => { fetchOrders() })
 
 async function fetchOrders() {
   loading.value = true
   try {
-    const res = await adminOrderApi.list({ pageNum: pageNum.value, pageSize: pageSize.value })
+    const res = await adminOrderApi.list({
+      pageNum: pageNum.value, pageSize: pageSize.value,
+      keyword: keyword.value || undefined,
+      status: statusFilter.value,
+    })
     orders.value = res.data.data?.records ?? []
     total.value = res.data.data?.total ?? 0
   } catch { /* handled */ }
   finally { loading.value = false }
+}
+
+function onSearch() {
+  pageNum.value = 1
+  fetchOrders()
 }
 
 function onPageChange(page: number) {
@@ -42,6 +53,18 @@ async function handleCancel(row: OrderListItem) {
     <div class="page-head">
       <h1>订单管理</h1>
     </div>
+
+    <div class="search-bar">
+      <el-input v-model="keyword" placeholder="搜索订单号..." clearable style="width:240px" @keyup.enter="onSearch" @clear="onSearch" />
+      <el-select v-model="statusFilter" placeholder="全部状态" clearable style="width:120px" @change="onSearch">
+        <el-option :value="0" label="待支付" />
+        <el-option :value="1" label="已支付" />
+        <el-option :value="2" label="已取消" />
+        <el-option :value="3" label="已退款" />
+      </el-select>
+      <el-button type="primary" @click="onSearch">搜索</el-button>
+    </div>
+
     <el-table :data="orders" v-loading="loading" border stripe>
       <el-table-column prop="id" label="ID" width="60" />
       <el-table-column prop="orderNo" label="订单号" width="200" />
@@ -89,5 +112,5 @@ async function handleCancel(row: OrderListItem) {
 .page { padding: var(--space-lg); }
 .page-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); }
 .page-head h1 { font-size: var(--font-size-xl); font-weight: 700; }
-.pagination-wrap { display: flex; justify-content: center; margin-top: var(--space-xl); }
+.page-head h1 { font-size: var(--font-size-xl); font-weight: 700; }
 </style>

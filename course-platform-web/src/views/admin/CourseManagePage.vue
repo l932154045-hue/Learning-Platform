@@ -15,6 +15,14 @@ const dialogTitle = ref('创建课程')
 const editingId = ref<number | null>(null)
 const formRef = ref<FormInstance>()
 
+// 搜索/筛选/分页
+const keyword = ref('')
+const teacherName = ref('')
+const statusFilter = ref<number | undefined>(undefined)
+const pageNum = ref(1)
+const pageSize = ref(20)
+const total = ref(0)
+
 const form = reactive<CourseSaveReq>({
   title: '', description: '', coverUrl: '', categoryId: 0, teacherName: '', price: 0,
 })
@@ -40,12 +48,28 @@ async function fetch() {
   loading.value = true
   try {
     const [cRes, catRes] = await Promise.all([
-      adminCourseApi.getCourses(),
+      adminCourseApi.getCourses({
+        pageNum: pageNum.value, pageSize: pageSize.value,
+        keyword: keyword.value || undefined,
+        teacherName: teacherName.value || undefined,
+        status: statusFilter.value,
+      }),
       adminCourseApi.getCategories(),
     ])
     courses.value = cRes.data?.data?.records ?? []
+    total.value = cRes.data?.data?.total ?? 0
     categories.value = catRes.data?.data ?? []
   } finally { loading.value = false }
+}
+
+function onSearch() {
+  pageNum.value = 1
+  fetch()
+}
+
+function onPageChange(page: number) {
+  pageNum.value = page
+  fetch()
 }
 
 function openCreate() {
@@ -126,6 +150,18 @@ async function handleRefreshCache() {
         <el-button type="primary" @click="openCreate">创建课程</el-button>
       </div>
     </div>
+
+    <!-- 搜索筛选栏 -->
+    <div class="search-bar">
+      <el-input v-model="keyword" placeholder="搜索课程名称..." clearable style="width:220px" @keyup.enter="onSearch" @clear="onSearch" />
+      <el-input v-model="teacherName" placeholder="讲师名称..." clearable style="width:160px" @keyup.enter="onSearch" @clear="onSearch" />
+      <el-select v-model="statusFilter" placeholder="全部状态" clearable style="width:120px" @change="onSearch">
+        <el-option :value="1" label="已上架" />
+        <el-option :value="0" label="已下架" />
+      </el-select>
+      <el-button type="primary" @click="onSearch">搜索</el-button>
+    </div>
+
     <el-table :data="courses" v-loading="loading" border stripe>
       <el-table-column prop="id" label="ID" width="60" />
       <el-table-column prop="title" label="标题" min-width="200" />
@@ -138,7 +174,7 @@ async function handleRefreshCache() {
       <el-table-column label="状态" width="80">
         <template #default="{ row }">
           <el-tag :type="row.status === 1 ? 'success' : 'warning'" size="small">
-            {{ row.status === 1 ? '已上架' : (row.status === 0 ? '草稿' : '已删除') }}
+            {{ row.status === 1 ? '已上架' : '已下架' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -153,6 +189,10 @@ async function handleRefreshCache() {
         </template>
       </el-table-column>
     </el-table>
+
+    <div class="pagination-wrap" v-if="total > pageSize">
+      <el-pagination background layout="total, prev, pager, next" :total="total" :page-size="pageSize" :current-page="pageNum" @current-change="onPageChange" />
+    </div>
 
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px">
       <el-form ref="formRef" :model="form" label-width="80px">

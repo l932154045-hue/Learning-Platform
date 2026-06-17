@@ -10,8 +10,8 @@ export const adminCourseApi = {
   addVideo: (data: VideoSaveReq) => http.post<R<null>>(`/api/admin/course/${data.courseId}/video`, data),
   updateVideo: (id: number, data: VideoSaveReq) => http.put<R<null>>(`/api/admin/course/video/${id}`, data),
   deleteVideo: (id: number) => http.delete<R<null>>(`/api/admin/course/video/${id}`),
-  // Admin endpoint — shows all courses regardless of status
-  getCourses: () => http.get<R<PageResp<CourseListItemVO>>>('/api/admin/course/list', { params: { pageSize: 100 } }),
+  getCourses: (params?: { pageNum?: number; pageSize?: number; keyword?: string; teacherName?: string; status?: number }) =>
+    http.get<R<PageResp<CourseListItemVO>>>('/api/admin/course/list', { params }),
   getCategories: () => http.get<R<CourseCategoryVO[]>>('/api/course/category/tree'),
   refreshCache: () => http.post<R<string>>('/api/course/cache/refresh'),
 }

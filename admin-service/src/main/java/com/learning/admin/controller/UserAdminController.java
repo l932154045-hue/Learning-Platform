@@ -20,10 +20,10 @@ public class UserAdminController {
     @GetMapping("/list")
     public R<PageResp<Map<String, Object>>> list(PageReq req,
                                                   @RequestParam(required = false) String keyword,
-                                                  @RequestParam(required = false) Integer role,
+                                                  @RequestParam(required = false) Integer roleFilter,
                                                   @RequestParam(required = false) Integer status,
                                                   @RequestAttribute("role") Integer adminRole) {
-        return R.ok(userAdminService.listUsers(req, keyword, role, status, adminRole));
+        return R.ok(userAdminService.listUsers(req, keyword, roleFilter, status, adminRole));
     }
 
     @PutMapping("/{id}/status")

@@ -49,3 +49,9 @@ import AdminSidebar from './AdminSidebar.vue'
   margin-left: var(--sidebar-width);
 }
 </style>
+
+<!-- 管理页面共享样式：侧边栏内子页面继承 -->
+<style>
+.search-bar { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); align-items: center; }
+.pagination-wrap { display: flex; justify-content: center; margin-top: var(--space-xl); }
+</style>
