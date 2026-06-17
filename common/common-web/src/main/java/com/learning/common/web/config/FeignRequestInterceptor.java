@@ -1,5 +1,6 @@
 package com.learning.common.web.config;
 
+import com.learning.common.core.constant.HeaderConstants;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,13 +22,13 @@ public class FeignRequestInterceptor implements RequestInterceptor {
             return;
         }
         HttpServletRequest request = attributes.getRequest();
-        String userId = request.getHeader("X-User-Id");
-        String role = request.getHeader("X-User-Role");
+        String userId = request.getHeader(HeaderConstants.X_USER_ID);
+        String role = request.getHeader(HeaderConstants.X_USER_ROLE);
         if (userId != null) {
-            template.header("X-User-Id", userId);
+            template.header(HeaderConstants.X_USER_ID, userId);
         }
         if (role != null) {
-            template.header("X-User-Role", role);
+            template.header(HeaderConstants.X_USER_ROLE, role);
         }
     }
 }
