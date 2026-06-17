@@ -57,7 +57,7 @@ gateway (8080) ──→ user-service      (8081, learning_user)
 - **实体基类**: 各服务自己定义 entity，无公共基类；ID 使用 `@TableId(type = IdType.AUTO)` 自增
 - **DTO 分层**: `dto.req` 放请求体，`dto.resp` 放响应 VO，`dto.req` 中的 DTO 加 `@Valid` 注解
 - **Feign 接口**: 放在调用方服务中（如 payment-service 中的 `OrderClient`），不在 common 中共享
-- **服务发现**: Nacos 已配置但 `enabled: false`，开发阶段走 localhost 直连
+- **服务发现**: Nacos 2.3.x，Gateway 通过 `lb://service-name` 路由，Feign 基于服务名调用
 
 ## 消息队列拓扑
 
@@ -90,7 +90,6 @@ course.topic (course-service + admin-service 双声明)
 ## 已知局限
 
 - **测试覆盖率** — 已补充 67 个核心链路单元测试（JUnit 5 + Mockito），仍有部分模块未覆盖
-- Nacos 已配置但 `enabled: false`，开发阶段走 localhost 直连
 - `order.created.course` / `order.created.notify` 队列已声明但无消费者（课程统计/通知占位）
 - admin-service 纯代理层，无审计日志/批量操作/操作历史
 

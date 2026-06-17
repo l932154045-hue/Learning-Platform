@@ -12,7 +12,7 @@ spring:
     nacos:
       discovery:
         server-addr: ${NACOS_SERVER:localhost:8848}
-        enabled: false
+        enabled: true
     gateway:
       discovery:
         locator:
@@ -20,31 +20,31 @@ spring:
           lower-case-service-id: true
       routes:
         - id: user-service
-          uri: http://localhost:8081
+          uri: lb://user-service
           predicates:
             - Path=/api/user/**
         - id: course-service
-          uri: http://localhost:8082
+          uri: lb://course-service
           predicates:
             - Path=/api/course/**
         - id: cart-service
-          uri: http://localhost:8083
+          uri: lb://cart-service
           predicates:
             - Path=/api/cart/**
         - id: order-service
-          uri: http://localhost:8084
+          uri: lb://order-service
           predicates:
             - Path=/api/order/**
         - id: payment-service
-          uri: http://localhost:8085
+          uri: lb://payment-service
           predicates:
             - Path=/api/payment/**
         - id: learning-service
-          uri: http://localhost:8086
+          uri: lb://learning-service
           predicates:
             - Path=/api/learning/**
         - id: admin-service
-          uri: http://localhost:8087
+          uri: lb://admin-service
           predicates:
             - Path=/api/admin/**
     sentinel:

@@ -8,7 +8,7 @@
 |------|------|------|
 | 后端框架 | Spring Boot + Spring Cloud | 3.2 / 2023.0.2 |
 | 网关 | Spring Cloud Gateway | — |
-| 服务发现 | Nacos（开发环境默认禁用） | — |
+| 服务发现 | Nacos 2.3.x | — |
 | ORM | MyBatis Plus | 3.5 |
 | 数据库 | MySQL（每服务独立库） | 8.0 |
 | 缓存 | Redis + Caffeine（两级缓存） | 7 / 3.x |
@@ -322,14 +322,13 @@ course-service 实现两级缓存，cart-service 使用单级 Redis 缓存：
 | `RABBITMQ_HOST` | `192.168.100.128` | RabbitMQ 地址 |
 | `RABBITMQ_USER` | `root` | RabbitMQ 用户名 |
 | `RABBITMQ_PWD` | (空) | RabbitMQ 密码 |
-| `NACOS_SERVER` | `localhost:8848` | Nacos 地址（当前禁用） |
+| `NACOS_SERVER` | `localhost:8848` | Nacos 地址 |
 
 凭据通过 `application-local.yml`（已 gitignore）覆盖，与 docker-compose.yml 中的 `040615` 保持一致即可直连。
 
 ## 已知局限
 
 - **测试覆盖率**：已补充 67 个核心链路单元测试（JUnit 5 + Mockito），覆盖 key Service/MQ/缓存，部分模块仍待补充
-- **Nacos**：已配置但所有服务 `enabled: false`，服务间走 localhost 直连
 - **队列占位**：`order.created.course` 和 `order.created.notify` 已声明队列及绑定，无对应消费者
 - **admin-service**：纯代理层，无审计日志、无批量操作、无操作历史
 

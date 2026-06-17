@@ -17,14 +17,9 @@ spring:
       port: 6379
       password: ${REDIS_PWD:}
   cloud:
-    openfeign:
-      client:
-        config:
-          course-service:
-            url: http://localhost:8082
     nacos:
       discovery:
-        enabled: false
+        enabled: true
         server-addr: ${NACOS_SERVER:localhost:8848}
 
 mybatis-plus:
