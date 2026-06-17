@@ -71,8 +71,6 @@ public class OrderServiceImpl implements OrderService {
             order.setUserId(userId);
             order.setTotalAmount(course.getPrice() != null ? course.getPrice() : BigDecimal.ZERO);
             order.setStatus(OrderStatusEnum.PENDING.getCode());
-            order.setCreatedAt(LocalDateTime.now());
-            order.setUpdatedAt(LocalDateTime.now());
             orderMapper.insert(order);
 
             // Create order item

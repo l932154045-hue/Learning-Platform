@@ -98,7 +98,6 @@ public class PaymentServiceImpl implements PaymentService {
             record.setAmount(orderAmount);
             record.setPayMethod("WECHAT");
             record.setStatus(PayStatusEnum.PENDING.getCode());
-            record.setCreatedAt(LocalDateTime.now());
             paymentRecordMapper.insert(record);
 
             // 7. Simulate payment success

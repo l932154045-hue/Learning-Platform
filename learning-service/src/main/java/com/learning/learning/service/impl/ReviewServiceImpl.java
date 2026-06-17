@@ -39,7 +39,6 @@ public class ReviewServiceImpl implements ReviewService {
         review.setCourseId(req.getCourseId());
         review.setRating(req.getRating());
         review.setContent(req.getContent());
-        review.setCreatedAt(java.time.LocalDateTime.now());
         courseReviewMapper.insert(review);
         log.info("用户提交评价: userId={}, courseId={}, rating={}", userId, req.getCourseId(), req.getRating());
     }
