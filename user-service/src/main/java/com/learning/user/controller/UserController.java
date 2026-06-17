@@ -1,6 +1,8 @@
 package com.learning.user.controller;
 
 import com.learning.common.core.result.R;
+import com.learning.common.security.annotation.CurrentUser;
+import com.learning.common.security.context.UserContext;
 import com.learning.user.dto.req.ChangePasswordReq;
 import com.learning.user.dto.req.LoginReq;
 import com.learning.user.dto.req.RegisterReq;
@@ -31,21 +33,21 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public R<UserInfoResp> getUserInfo(@RequestAttribute("userId") Long userId) {
-        return R.ok(userService.getUserInfo(userId));
+    public R<UserInfoResp> getUserInfo(@CurrentUser UserContext userContext) {
+        return R.ok(userService.getUserInfo(userContext.getUserId()));
     }
 
     @PutMapping("/info")
-    public R<Void> updateInfo(@RequestAttribute("userId") Long userId,
-                               @Valid @RequestBody UpdateUserInfoReq req) {
-        userService.updateUserInfo(userId, req);
+    public R<Void> updateInfo(@CurrentUser UserContext userContext,
+                              @Valid @RequestBody UpdateUserInfoReq req) {
+        userService.updateUserInfo(userContext.getUserId(), req);
         return R.ok();
     }
 
     @PutMapping("/password")
-    public R<Void> changePassword(@RequestAttribute("userId") Long userId,
-                                   @RequestBody ChangePasswordReq req) {
-        userService.changePassword(userId, req.getOldPassword(), req.getNewPassword());
+    public R<Void> changePassword(@CurrentUser UserContext userContext,
+                                  @RequestBody ChangePasswordReq req) {
+        userService.changePassword(userContext.getUserId(), req.getOldPassword(), req.getNewPassword());
         return R.ok();
     }
 }
