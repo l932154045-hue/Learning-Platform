@@ -2,6 +2,8 @@ package com.learning.admin.controller;
 
 import com.learning.admin.service.CategoryAdminService;
 import com.learning.common.core.result.R;
+import com.learning.common.security.annotation.CurrentUser;
+import com.learning.common.security.context.UserContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,8 +18,8 @@ public class CategoryAdminController {
     public R<Void> create(@RequestParam String name,
                            @RequestParam(defaultValue = "0") Long parentId,
                            @RequestParam(defaultValue = "0") Integer sortOrder,
-                           @RequestAttribute("role") Integer role) {
-        categoryAdminService.createCategory(name, parentId, sortOrder, role);
+                           @CurrentUser UserContext userContext) {
+        categoryAdminService.createCategory(name, parentId, sortOrder, userContext.getRole());
         return R.ok();
     }
 
@@ -25,15 +27,15 @@ public class CategoryAdminController {
     public R<Void> update(@PathVariable("id") Long id,
                            @RequestParam String name,
                            @RequestParam Integer sortOrder,
-                           @RequestAttribute("role") Integer role) {
-        categoryAdminService.updateCategory(id, name, sortOrder, role);
+                           @CurrentUser UserContext userContext) {
+        categoryAdminService.updateCategory(id, name, sortOrder, userContext.getRole());
         return R.ok();
     }
 
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable("id") Long id,
-                           @RequestAttribute("role") Integer role) {
-        categoryAdminService.deleteCategory(id, role);
+                           @CurrentUser UserContext userContext) {
+        categoryAdminService.deleteCategory(id, userContext.getRole());
         return R.ok();
     }
 }

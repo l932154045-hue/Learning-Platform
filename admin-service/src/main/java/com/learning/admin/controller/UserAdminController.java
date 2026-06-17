@@ -5,6 +5,8 @@ import com.learning.admin.service.UserAdminService;
 import com.learning.common.core.page.PageReq;
 import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
+import com.learning.common.security.annotation.CurrentUser;
+import com.learning.common.security.context.UserContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,15 +24,15 @@ public class UserAdminController {
                                                   @RequestParam(required = false) String keyword,
                                                   @RequestParam(required = false) Integer roleFilter,
                                                   @RequestParam(required = false) Integer status,
-                                                  @RequestAttribute("role") Integer role) {
-        return R.ok(userAdminService.listUsers(req, keyword, roleFilter, status, role));
+                                                  @CurrentUser UserContext userContext) {
+        return R.ok(userAdminService.listUsers(req, keyword, roleFilter, status, userContext.getRole()));
     }
 
     @PutMapping("/{id}/status")
     public R<Void> updateStatus(@PathVariable("id") Long id,
                                  @RequestBody UserStatusReq req,
-                                 @RequestAttribute("role") Integer role) {
-        userAdminService.updateUserStatus(id, req.getStatus(), role);
+                                 @CurrentUser UserContext userContext) {
+        userAdminService.updateUserStatus(id, req.getStatus(), userContext.getRole());
         return R.ok();
     }
 }

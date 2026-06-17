@@ -4,6 +4,8 @@ import com.learning.admin.service.OrderAdminService;
 import com.learning.common.core.page.PageReq;
 import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
+import com.learning.common.security.annotation.CurrentUser;
+import com.learning.common.security.context.UserContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,15 +23,15 @@ public class OrderAdminController {
     public R<PageResp<Map<String, Object>>> list(PageReq req,
                                                   @RequestParam(required = false) String keyword,
                                                   @RequestParam(required = false) Integer status,
-                                                  @RequestAttribute("role") Integer role) {
-        return R.ok(orderAdminService.listOrders(req, keyword, status, role));
+                                                  @CurrentUser UserContext userContext) {
+        return R.ok(orderAdminService.listOrders(req, keyword, status, userContext.getRole()));
     }
 
     @PutMapping("/{id}/status")
     public R<Void> updateStatus(@PathVariable("id") Long id,
                                  @RequestParam Integer status,
-                                 @RequestAttribute("role") Integer role) {
-        orderAdminService.updateOrderStatus(id, status, role);
+                                 @CurrentUser UserContext userContext) {
+        orderAdminService.updateOrderStatus(id, status, userContext.getRole());
         return R.ok();
     }
 }
