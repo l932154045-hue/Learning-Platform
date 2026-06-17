@@ -322,7 +322,7 @@ course-service 实现两级缓存，cart-service 使用单级 Redis 缓存：
 | `RABBITMQ_HOST` | `192.168.100.128` | RabbitMQ 地址 |
 | `RABBITMQ_USER` | `root` | RabbitMQ 用户名 |
 | `RABBITMQ_PWD` | (空) | RabbitMQ 密码 |
-| `NACOS_SERVER` | `localhost:8848` | Nacos 地址 |
+| `NACOS_SERVER` | `192.168.100.128:8848` | Nacos 地址 |
 
 凭据通过 `application-local.yml`（已 gitignore）覆盖，与 docker-compose.yml 中的 `040615` 保持一致即可直连。
 
