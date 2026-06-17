@@ -5,6 +5,8 @@ import com.learning.common.core.page.PageReq;
 import com.learning.common.core.page.PageResp;
 import com.learning.common.core.result.R;
 import com.learning.common.core.result.ResultCode;
+import com.learning.common.security.annotation.CurrentUser;
+import com.learning.common.security.context.UserContext;
 import com.learning.order.dto.req.CreateOrderReq;
 import com.learning.order.dto.resp.OrderDetailVO;
 import com.learning.order.dto.resp.OrderListVO;
@@ -25,34 +27,33 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/create")
-    public R<Long> create(@RequestAttribute("userId") Long userId,
+    public R<Long> create(@CurrentUser UserContext userContext,
                           @Valid @RequestBody CreateOrderReq req) {
-        return R.ok(orderService.createOrder(userId, req));
+        return R.ok(orderService.createOrder(userContext.getUserId(), req));
     }
 
     @GetMapping("/detail/{id}")
     public R<OrderDetailVO> detail(@PathVariable("id") Long id,
-                                    @RequestAttribute("userId") Long userId) {
-        return R.ok(orderService.getDetail(id, userId));
+                                    @CurrentUser UserContext userContext) {
+        return R.ok(orderService.getDetail(id, userContext.getUserId()));
     }
 
     @GetMapping("/list")
-    public R<List<OrderDetailVO>> list(@RequestAttribute("userId") Long userId) {
-        return R.ok(orderService.list(userId));
+    public R<List<OrderDetailVO>> list(@CurrentUser UserContext userContext) {
+        return R.ok(orderService.list(userContext.getUserId()));
     }
 
     @PutMapping("/cancel/{id}")
     public R<Void> cancel(@PathVariable("id") Long id,
-                           @RequestAttribute("userId") Long userId) {
-        orderService.cancel(id, userId);
+                           @CurrentUser UserContext userContext) {
+        orderService.cancel(id, userContext.getUserId());
         return R.ok();
     }
 
     @GetMapping("/internal/owner/{id}")
     public R<Long> getOwner(@PathVariable("id") Long id,
-                             @RequestAttribute(value = "role", required = false) Integer role) {
-        // 通过网关访问时校验管理员角色, 内部 Feign 调用时 role 为 null 放行
-        if (role != null && role != 1) {
+                             @CurrentUser UserContext userContext) {
+        if (!userContext.isAdmin()) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         return R.ok(orderService.getOwnerUserId(id));
@@ -60,8 +61,8 @@ public class OrderController {
 
     @GetMapping("/internal/courseId/{id}")
     public R<Long> getCourseId(@PathVariable("id") Long id,
-                                @RequestAttribute(value = "role", required = false) Integer role) {
-        if (role != null && role != 1) {
+                                @CurrentUser UserContext userContext) {
+        if (!userContext.isAdmin()) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         return R.ok(orderService.getCourseId(id));
@@ -69,8 +70,8 @@ public class OrderController {
 
     @GetMapping("/internal/totalAmount/{id}")
     public R<java.math.BigDecimal> getTotalAmount(@PathVariable("id") Long id,
-                                                   @RequestAttribute(value = "role", required = false) Integer role) {
-        if (role != null && role != 1) {
+                                                   @CurrentUser UserContext userContext) {
+        if (!userContext.isAdmin()) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         return R.ok(orderService.getTotalAmount(id));
@@ -78,8 +79,8 @@ public class OrderController {
 
     @GetMapping("/internal/summary/{id}")
     public R<OrderSummaryVO> getSummary(@PathVariable("id") Long id,
-                                         @RequestAttribute(value = "role", required = false) Integer role) {
-        if (role != null && role != 1) {
+                                         @CurrentUser UserContext userContext) {
+        if (!userContext.isAdmin()) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         return R.ok(orderService.getOrderSummary(id));
@@ -88,9 +89,8 @@ public class OrderController {
     @PutMapping("/internal/updateStatus/{id}")
     public R<Void> updateStatus(@PathVariable("id") Long id,
                                  @RequestParam("status") Integer status,
-                                 @RequestAttribute(value = "role", required = false) Integer role) {
-        // 通过网关访问时校验管理员角色, 内部 Feign 调用时 role 为 null 放行
-        if (role != null && role != 1) {
+                                 @CurrentUser UserContext userContext) {
+        if (!userContext.isAdmin()) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         orderService.updateStatus(id, status);
@@ -101,24 +101,24 @@ public class OrderController {
     public R<PageResp<OrderListVO>> listAll(PageReq req,
                                              @RequestParam(required = false) String keyword,
                                              @RequestParam(required = false) Integer status,
-                                             @RequestAttribute(value = "role", required = false) Integer role) {
-        if (role != null && role != 1) {
+                                             @CurrentUser UserContext userContext) {
+        if (!userContext.isAdmin()) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         return R.ok(orderService.listAllOrders(req, keyword, status));
     }
 
     @GetMapping("/internal/count")
-    public R<Long> getOrderCount(@RequestAttribute(value = "role", required = false) Integer role) {
-        if (role != null && role != 1) {
+    public R<Long> getOrderCount(@CurrentUser UserContext userContext) {
+        if (!userContext.isAdmin()) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         return R.ok(orderService.getOrderCount());
     }
 
     @GetMapping("/internal/revenue")
-    public R<BigDecimal> getTotalRevenue(@RequestAttribute(value = "role", required = false) Integer role) {
-        if (role != null && role != 1) {
+    public R<BigDecimal> getTotalRevenue(@CurrentUser UserContext userContext) {
+        if (!userContext.isAdmin()) {
             throw new BizException(ResultCode.FORBIDDEN);
         }
         return R.ok(orderService.getTotalRevenue());
