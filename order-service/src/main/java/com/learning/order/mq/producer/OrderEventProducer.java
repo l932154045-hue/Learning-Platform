@@ -2,7 +2,7 @@ package com.learning.order.mq.producer;
 
 import com.learning.order.config.RabbitMQConfig;
 import com.learning.order.mq.message.OrderCreatedMessage;
-import com.learning.order.mq.message.OrderPaidMessage;
+import com.learning.common.mq.message.OrderPaidMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;

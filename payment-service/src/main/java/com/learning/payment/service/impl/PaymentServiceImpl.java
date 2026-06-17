@@ -10,7 +10,7 @@ import com.learning.payment.dto.resp.PayResultVO;
 import com.learning.payment.entity.PaymentRecord;
 import com.learning.payment.enums.PayStatusEnum;
 import com.learning.payment.mapper.PaymentRecordMapper;
-import com.learning.payment.mq.message.OrderPaidMessage;
+import com.learning.common.mq.message.OrderPaidMessage;
 import com.learning.payment.mq.producer.PaymentEventProducer;
 import com.learning.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;

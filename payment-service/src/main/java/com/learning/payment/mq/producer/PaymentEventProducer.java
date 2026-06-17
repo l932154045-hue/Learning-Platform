@@ -1,6 +1,6 @@
 package com.learning.payment.mq.producer;
 
-import com.learning.payment.mq.message.OrderPaidMessage;
+import com.learning.common.mq.message.OrderPaidMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;

@@ -1,7 +1,7 @@
 package com.learning.admin.mq.producer;
 
-import com.learning.admin.mq.message.CategoryUpdatedMessage;
-import com.learning.admin.mq.message.CourseUpdatedMessage;
+import com.learning.common.mq.message.CategoryUpdatedMessage;
+import com.learning.common.mq.message.CourseUpdatedMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;

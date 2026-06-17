@@ -1,7 +1,7 @@
 package com.learning.admin.service.impl;
 
 import com.learning.admin.client.CourseServiceClient;
-import com.learning.admin.mq.message.CategoryUpdatedMessage;
+import com.learning.common.mq.message.CategoryUpdatedMessage;
 import com.learning.admin.mq.producer.AdminEventProducer;
 import com.learning.admin.service.AdminAuthService;
 import com.learning.admin.service.CategoryAdminService;

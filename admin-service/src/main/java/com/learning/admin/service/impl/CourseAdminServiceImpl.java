@@ -3,7 +3,7 @@ package com.learning.admin.service.impl;
 import com.learning.admin.client.CourseServiceClient;
 import com.learning.admin.dto.req.CourseSaveReq;
 import com.learning.admin.dto.req.VideoSaveReq;
-import com.learning.admin.mq.message.CourseUpdatedMessage;
+import com.learning.common.mq.message.CourseUpdatedMessage;
 import com.learning.admin.mq.producer.AdminEventProducer;
 import com.learning.admin.service.AdminAuthService;
 import com.learning.admin.service.CourseAdminService;

@@ -1,7 +1,7 @@
 package com.learning.learning.mq.consumer;
 
 import com.learning.common.core.exception.BizException;
-import com.learning.learning.mq.message.OrderPaidMessage;
+import com.learning.common.mq.message.OrderPaidMessage;
 import com.learning.learning.service.EnrollmentService;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
