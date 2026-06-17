@@ -33,14 +33,16 @@ public class CartServiceImpl implements CartService {
         Cart cart = new Cart();
         cart.setUserId(userId);
         cart.setCourseId(courseId);
-        cart.setCreatedAt(java.time.LocalDateTime.now());
-        cart.setUpdatedAt(java.time.LocalDateTime.now());
         try {
             cartMapper.insert(cart);
         } catch (DuplicateKeyException e) {
             throw new BizException(ResultCode.CART_DUPLICATE);
         }
-        cartCacheService.addToCart(userId, courseId);
+        try {
+            cartCacheService.addToCart(userId, courseId);
+        } catch (Exception e) {
+            log.error("购物车缓存写入失败: userId={}, courseId={}", userId, courseId, e);
+        }
     }
 
     @Override
@@ -68,28 +70,44 @@ public class CartServiceImpl implements CartService {
         Map<Long, Long> courseIdToCartId = cartRecords.stream()
                 .collect(Collectors.toMap(Cart::getCourseId, Cart::getId));
 
-        // Feign call course-service for course info
+        // Batch-fetch course info — one Feign call instead of N
+        Map<Long, CourseFeignResp> courseMap = fetchCourseBatch(new ArrayList<>(courseIds));
+
         List<CartItemVO> result = new ArrayList<>();
         for (Long courseId : courseIds) {
-            try {
-                R<CourseFeignResp> response = courseClient.getCourseDetail(courseId);
-                if (response != null && response.getCode() == 200 && response.getData() != null) {
-                    CourseFeignResp course = response.getData();
-                    CartItemVO vo = new CartItemVO();
-                    Long cartId = courseIdToCartId.get(courseId);
-                    vo.setCartId(cartId != null ? cartId : -1L);
-                    vo.setCourseId(courseId);
-                    vo.setCourseTitle(course.getTitle());
-                    vo.setCoverUrl(course.getCoverUrl());
-                    vo.setTeacherName(course.getTeacherName());
-                    vo.setPrice(course.getPrice());
-                    result.add(vo);
-                }
-            } catch (Exception e) {
-                log.error("Failed to fetch course detail for courseId={}", courseId, e);
+            CourseFeignResp course = courseMap.get(courseId);
+            CartItemVO vo = new CartItemVO();
+            Long cartId = courseIdToCartId.get(courseId);
+            vo.setCartId(cartId != null ? cartId : -1L);
+            vo.setCourseId(courseId);
+            if (course != null) {
+                vo.setCourseTitle(course.getTitle());
+                vo.setCoverUrl(course.getCoverUrl());
+                vo.setTeacherName(course.getTeacherName());
+                vo.setPrice(course.getPrice());
+            } else {
+                vo.setCourseTitle("课程-" + courseId);
+                vo.setTeacherName("未知");
             }
+            result.add(vo);
         }
         return result;
+    }
+
+    private Map<Long, CourseFeignResp> fetchCourseBatch(List<Long> courseIds) {
+        if (courseIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        try {
+            R<List<CourseFeignResp>> response = courseClient.getCourseBatch(courseIds);
+            if (response != null && response.getCode() == 200 && response.getData() != null) {
+                return response.getData().stream()
+                        .collect(Collectors.toMap(CourseFeignResp::getId, c -> c));
+            }
+        } catch (Exception e) {
+            log.error("批量获取课程信息失败: courseIds={}", courseIds, e);
+        }
+        return Collections.emptyMap();
     }
 
     @Override
