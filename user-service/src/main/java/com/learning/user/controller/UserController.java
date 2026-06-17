@@ -4,6 +4,7 @@ import com.learning.common.core.result.R;
 import com.learning.user.dto.req.ChangePasswordReq;
 import com.learning.user.dto.req.LoginReq;
 import com.learning.user.dto.req.RegisterReq;
+import com.learning.user.dto.req.UpdateUserInfoReq;
 import com.learning.user.dto.resp.LoginResp;
 import com.learning.user.dto.resp.UserInfoResp;
 import com.learning.user.service.UserService;
@@ -36,7 +37,7 @@ public class UserController {
 
     @PutMapping("/info")
     public R<Void> updateInfo(@RequestAttribute("userId") Long userId,
-                               @RequestBody UserInfoResp req) {
+                               @Valid @RequestBody UpdateUserInfoReq req) {
         userService.updateUserInfo(userId, req);
         return R.ok();
     }

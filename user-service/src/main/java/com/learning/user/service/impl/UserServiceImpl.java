@@ -10,6 +10,7 @@ import com.learning.common.core.result.ResultCode;
 import com.learning.common.security.util.JwtUtil;
 import com.learning.user.dto.req.LoginReq;
 import com.learning.user.dto.req.RegisterReq;
+import com.learning.user.dto.req.UpdateUserInfoReq;
 import com.learning.user.dto.resp.LoginResp;
 import com.learning.user.dto.resp.UserInfoResp;
 import com.learning.user.dto.resp.UserListResp;
@@ -56,8 +57,6 @@ public class UserServiceImpl implements UserService {
         user.setNickname(req.getUsername());
         user.setRole(0);
         user.setStatus(1);
-        user.setCreatedAt(java.time.LocalDateTime.now());
-        user.setUpdatedAt(java.time.LocalDateTime.now());
         userMapper.insert(user);
         log.info("用户注册成功: userId={}", user.getId());
     }
@@ -91,7 +90,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUserInfo(Long userId, UserInfoResp req) {
+    public void updateUserInfo(Long userId, UpdateUserInfoReq req) {
         User user = userMapper.selectById(userId);
         if (user == null) {
             throw new BizException(ResultCode.LOGIN_FAIL);
@@ -160,7 +159,7 @@ public class UserServiceImpl implements UserService {
                             .eq(User::getRole, 1)
                             .eq(User::getStatus, 1));
             if (adminCount <= 1) {
-                throw new BizException(40019, "无法禁用最后一个管理员账号");
+                throw new BizException(ResultCode.LAST_ADMIN_CANNOT_DISABLE);
             }
         }
         user.setStatus(status);
