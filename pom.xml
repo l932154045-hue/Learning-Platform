@@ -33,6 +33,7 @@
         <jjwt.version>0.12.6</jjwt.version>
         <caffeine.version>3.1.8</caffeine.version>
         <lombok.version>1.18.32</lombok.version>
+        <knife4j.version>4.5.0</knife4j.version>
     </properties>
 
     <dependencyManagement>
@@ -103,6 +104,12 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
+            </dependency>
+            <!-- Knife4j API文档 -->
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -26,7 +26,12 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             "/api/course/detail",
             "/api/course/category/tree",
             "/api/course/hot",
-            "/api/learning/course"
+            "/api/learning/course",
+            // Swagger / Knife4j 文档端点
+            "/doc.html",
+            "/v3/api-docs",
+            "/swagger-ui",
+            "/webjars"
     );
 
     public AuthGlobalFilter(JwtUtil jwtUtil) {

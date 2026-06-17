@@ -29,3 +29,11 @@ mybatis-plus:
 jwt:
   secret: ${JWT_SECRET:}
   ttl: 604800000
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /doc.html
+    tags-sorter: alpha
+    operations-sorter: method

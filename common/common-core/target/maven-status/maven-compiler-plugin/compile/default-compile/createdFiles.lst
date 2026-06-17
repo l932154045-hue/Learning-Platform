@@ -1,6 +1,0 @@
-com\learning\common\core\exception\BizException.class
-com\learning\common\core\page\PageResp.class
-com\learning\common\core\result\ResultCode.class
-com\learning\common\core\page\PageReq.class
-com\learning\common\core\result\R.class
-com\learning\common\core\exception\GlobalExceptionHandler.class

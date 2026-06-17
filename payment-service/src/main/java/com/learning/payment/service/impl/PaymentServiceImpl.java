@@ -1,5 +1,7 @@
 package com.learning.payment.service.impl;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.learning.common.core.exception.BizException;
 import com.learning.common.core.result.R;
@@ -38,6 +40,11 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderClient orderClient;
     private final PaymentEventProducer paymentEventProducer;
 
+    @SentinelResource(
+            value = "pay",
+            blockHandler = "payBlock",
+            fallback = "payFallback"
+    )
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PayResultVO pay(Long userId, Long orderId) {
@@ -131,6 +138,18 @@ public class PaymentServiceImpl implements PaymentService {
             // Release distributed lock
             redisTemplate.delete(lockKey);
         }
+    }
+
+    /** Sentinel 限流处理 */
+    public PayResultVO payBlock(Long userId, Long orderId, BlockException ex) {
+        log.warn("[Sentinel] pay 限流 userId={}", userId);
+        throw new BizException(ResultCode.REMOTE_CALL_ERROR);
+    }
+
+    /** Sentinel fallback */
+    public PayResultVO payFallback(Long userId, Long orderId, Throwable t) {
+        log.error("[Sentinel] pay fallback userId={}", userId, t);
+        throw new BizException(ResultCode.SYSTEM_ERROR);
     }
 
     @Override

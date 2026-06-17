@@ -3,6 +3,8 @@ package com.learning.order.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.learning.common.core.dto.CourseFeignResp;
 import com.learning.common.core.exception.BizException;
 import com.learning.common.core.page.PageReq;
@@ -50,6 +52,11 @@ public class OrderServiceImpl implements OrderService {
     private final CourseClient courseClient;
     private final TransactionTemplate transactionTemplate;
 
+    @SentinelResource(
+            value = "createOrder",
+            blockHandler = "createOrderBlock",
+            fallback = "createOrderFallback"
+    )
     @Override
     public Long createOrder(Long userId, CreateOrderReq req) {
         // 检查是否已购买
@@ -98,6 +105,18 @@ public class OrderServiceImpl implements OrderService {
 
             return order.getId();
         });
+    }
+
+    /** Sentinel 限流处理 */
+    public Long createOrderBlock(Long userId, CreateOrderReq req, BlockException ex) {
+        log.warn("[Sentinel] createOrder 限流 userId={}", userId);
+        throw new BizException(ResultCode.REMOTE_CALL_ERROR);
+    }
+
+    /** Sentinel fallback */
+    public Long createOrderFallback(Long userId, CreateOrderReq req, Throwable t) {
+        log.error("[Sentinel] createOrder fallback userId={}", userId, t);
+        throw new BizException(ResultCode.SYSTEM_ERROR);
     }
 
     private CourseFeignResp fetchCourseInfo(Long courseId) {
