@@ -22,8 +22,8 @@ public class UserAdminController {
                                                   @RequestParam(required = false) String keyword,
                                                   @RequestParam(required = false) Integer roleFilter,
                                                   @RequestParam(required = false) Integer status,
-                                                  @RequestAttribute("role") Integer adminRole) {
-        return R.ok(userAdminService.listUsers(req, keyword, roleFilter, status, adminRole));
+                                                  @RequestAttribute("role") Integer role) {
+        return R.ok(userAdminService.listUsers(req, keyword, roleFilter, status, role));
     }
 
     @PutMapping("/{id}/status")

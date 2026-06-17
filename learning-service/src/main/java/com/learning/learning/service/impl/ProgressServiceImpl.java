@@ -1,6 +1,8 @@
 package com.learning.learning.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.learning.common.core.exception.BizException;
+import com.learning.common.core.result.ResultCode;
 import com.learning.learning.dto.req.ProgressReportReq;
 import com.learning.learning.dto.resp.ProgressVO;
 import com.learning.learning.entity.Enrollment;
@@ -42,7 +44,7 @@ public class ProgressServiceImpl implements ProgressService {
         if (cachedProgress != null && req.getProgressSeconds() <= cachedProgress) {
             log.warn("进度防刷拦截: userId={}, videoId={}, cachedProgress={}, reportProgress={}",
                     userId, req.getVideoId(), cachedProgress, req.getProgressSeconds());
-            return;
+            throw new BizException(ResultCode.PROGRESS_BLOCKED);
         }
 
         // Store new progress in Redis with 24h TTL
@@ -61,7 +63,6 @@ public class ProgressServiceImpl implements ProgressService {
             existing.setProgressSeconds(req.getProgressSeconds());
             existing.setCourseId(req.getCourseId());
             existing.setIsFinished(isFinished);
-            existing.setUpdatedAt(LocalDateTime.now());
             videoProgressMapper.updateById(existing);
         } else {
             VideoProgress progress = new VideoProgress();
@@ -70,7 +71,6 @@ public class ProgressServiceImpl implements ProgressService {
             progress.setCourseId(req.getCourseId());
             progress.setProgressSeconds(req.getProgressSeconds());
             progress.setIsFinished(isFinished);
-            progress.setUpdatedAt(LocalDateTime.now());
             videoProgressMapper.insert(progress);
         }
 
