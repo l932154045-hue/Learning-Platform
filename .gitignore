@@ -35,3 +35,6 @@ credentials.json
 .npmrc
 .aws/
 .ssh/
+
+# 本地开发配置（含敏感信息）
+**/application-local.yml

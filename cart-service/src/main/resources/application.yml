@@ -4,16 +4,18 @@ server:
 spring:
   application:
     name: cart-service
+  profiles:
+    active: local
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:192.168.100.128}:3306/learning_cart?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8
     username: ${MYSQL_USER:root}
-    password: ${MYSQL_PWD:040615}
+    password: ${MYSQL_PWD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
       host: ${REDIS_HOST:192.168.100.128}
       port: 6379
-      password: ${REDIS_PWD:040615}
+      password: ${REDIS_PWD:}
   cloud:
     openfeign:
       client:
@@ -33,3 +35,6 @@ mybatis-plus:
       logic-delete-field: deleted
       logic-delete-value: 1
       logic-not-delete-value: 0
+
+jwt:
+  secret: ${JWT_SECRET:}

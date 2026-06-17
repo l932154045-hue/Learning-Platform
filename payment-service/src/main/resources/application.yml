@@ -4,23 +4,25 @@ server:
 spring:
   application:
     name: payment-service
+  profiles:
+    active: local
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:192.168.100.128}:3306/learning_payment?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8
     username: ${MYSQL_USER:root}
-    password: ${MYSQL_PWD:040615}
+    password: ${MYSQL_PWD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   rabbitmq:
     host: ${RABBITMQ_HOST:192.168.100.128}
     port: 5672
     username: ${RABBITMQ_USER:root}
-    password: ${RABBITMQ_PWD:040615}
+    password: ${RABBITMQ_PWD:}
     publisher-confirm-type: correlated
     publisher-returns: true
   data:
     redis:
       host: ${REDIS_HOST:192.168.100.128}
       port: 6379
-      password: ${REDIS_PWD:040615}
+      password: ${REDIS_PWD:}
   cloud:
     openfeign:
       client:
@@ -40,3 +42,6 @@ mybatis-plus:
       logic-delete-field: deleted
       logic-delete-value: 1
       logic-not-delete-value: 0
+
+jwt:
+  secret: ${JWT_SECRET:}

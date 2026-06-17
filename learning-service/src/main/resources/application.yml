@@ -4,21 +4,23 @@ server:
 spring:
   application:
     name: learning-service
+  profiles:
+    active: local
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:192.168.100.128}:3306/learning_learning?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8
     username: ${MYSQL_USER:root}
-    password: ${MYSQL_PWD:040615}
+    password: ${MYSQL_PWD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
       host: ${REDIS_HOST:192.168.100.128}
       port: 6379
-      password: ${REDIS_PWD:040615}
+      password: ${REDIS_PWD:}
   rabbitmq:
     host: ${RABBITMQ_HOST:192.168.100.128}
     port: 5672
     username: ${RABBITMQ_USER:root}
-    password: ${RABBITMQ_PWD:040615}
+    password: ${RABBITMQ_PWD:}
     listener:
       simple:
         acknowledge-mode: manual
@@ -38,5 +40,5 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 jwt:
-  secret: LearningPlatformJwtSecretKey2026!@#
+  secret: ${JWT_SECRET:}
   ttl: 604800000

@@ -4,11 +4,13 @@ server:
 spring:
   application:
     name: admin-service
+  profiles:
+    active: local
   rabbitmq:
     host: ${RABBITMQ_HOST:192.168.100.128}
     port: 5672
     username: ${RABBITMQ_USER:root}
-    password: ${RABBITMQ_PWD:040615}
+    password: ${RABBITMQ_PWD:}
     publisher-confirm-type: correlated
     publisher-returns: true
   cloud:
@@ -27,7 +29,7 @@ spring:
         server-addr: ${NACOS_SERVER:localhost:8848}
 
 jwt:
-  secret: LearningPlatformJwtSecretKey2026!@#
+  secret: ${JWT_SECRET:}
   ttl: 604800000
 
 logging:

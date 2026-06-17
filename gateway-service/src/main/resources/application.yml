@@ -6,6 +6,8 @@ spring:
     web-application-type: reactive
   application:
     name: gateway-service
+  profiles:
+    active: local
   cloud:
     nacos:
       discovery:
@@ -50,7 +52,7 @@ spring:
         dashboard: ${SENTINEL_DASHBOARD:localhost:8858}
 
 jwt:
-  secret: LearningPlatformJwtSecretKey2026!@#
+  secret: ${JWT_SECRET:}
   ttl: 604800000
 
 logging:
